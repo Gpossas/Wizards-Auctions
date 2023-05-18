@@ -168,6 +168,7 @@ def watchlist_form(request, listing_id):
             except:
                 messages.error(request, "Can't delete from watchlist")
                 return redirect(reverse('listing_page', kwargs={'listing_id': listing_id}))
+            
         else:
             action = "Added to watchlist"
             try:
