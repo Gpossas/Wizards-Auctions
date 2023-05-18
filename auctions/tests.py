@@ -123,10 +123,10 @@ class WatchlistTestCase(TestCase):
         """
         response = self.client.get(reverse('watchlist'))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/login?next=/watchlist')
+        self.assertEqual(response.url, f"{reverse('login')}?next={reverse('watchlist')}")
         response = self.client.post(reverse('watchlist_form', args=[self.potion.id]))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, f'/login?next=/listing_page/watchlist/{self.potion.id}')
+        self.assertEqual(response.url, f"{reverse('login')}?next={reverse('watchlist_form', args=[self.potion.id])}")
     
     def test_valid_watchlist_form_add(self):
         self.client.force_login(self.user)
