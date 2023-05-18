@@ -1,0 +1,34 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  {% if messages %}
+    {% for message in messages %}
+    <div id="flash_message">
+      <p class="alert alert-success" role="alert">{{ message }}</p>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <h2>Active Listings</h2>
+
+  {% for listing in listings %}
+    <div class="listing">
+      <a href="{% url 'listing_page' listing.id %}">
+        <div>
+          <img src="{{ listing.picture|default:'https://t4.ftcdn.net/jpg/04/99/93/31/360_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg' }}"
+           alt="{{ listing.title }}" height="200px">
+          <p><strong>{{ listing.title|capfirst }}</strong></p>
+          <p>
+            <strong>price: $</strong>{{ listing.bids.last }}.00
+          </p>
+          {% if listing.description %}
+            <p>{{ listing.description|capfirst }}</p>
+          {% endif %}
+          <p>Created {{ listing.date }}</p>
+        </div>
+      </a>
+    </div>
+  {% empty %}
+    <p>Looks like there's no active listing</p>
+  {% endfor %}
+{% endblock %}

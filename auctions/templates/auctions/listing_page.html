@@ -1,0 +1,117 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  <h2>Listing: {{ listing }}</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div id="flash_message">
+      {% if message.tags == "success" %}
+        <p class="alert alert-success" role="alert">{{ message }}</p>
+      {% else %}
+        <p class="alert alert-danger" role="alert">{{ message }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="picture">
+    <img 
+      src="{{ listing.picture|default:'https://t4.ftcdn.net/jpg/04/99/93/31/360_F_499933117_ZAUBfv3P1HEOsZDrnkbNCt4jc3AodArl.jpg' }}" 
+      alt="{{ listing }}" width="600px"
+    >
+  </div>
+
+  {% if user.is_authenticated %}
+    <div class="watchlist">
+      {% if error_watchlist %}
+        <p class="alert alert-danger" role="alert">{{ error_watchlist }}</p>
+      {% endif %}
+    
+      <form action="{% url 'watchlist_form' listing.id %}" method="post">
+        {% csrf_token %}
+
+        {% if in_watchlist %}
+          <button name="watchlist" value="True" class="btn btn-primary">Remove from watchlist</button>
+        {% else %}
+          <button name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
+        {% endif %}
+      </form>
+    </div>
+  {% endif %}
+
+  <div class="description">
+    <p>{{ listing.description|capfirst }}</p>
+  </div>
+  
+  <div class="bids mb-3">
+    <h2>${{ listing.bids.last }}</h2> 
+    <p>
+      {{ listing.bids.count }} bid(s) so far. 
+      {% if user.id == listing.bids.last.user.id %} Your bid is the current bid {% endif %}
+    </p>
+
+    {% if user.is_authenticated %}
+      <form action="{% url 'place_bid' listing.bids.last.id %}" method="post" class="w-25">
+        {% csrf_token %}
+
+        <div class="input-group mb-3">
+          <span class="input-group-text">$</span>
+          <input name="bid" type="number" class="form-control" aria-label="Dollar amount" placeholder="Bid">
+        </div>
+
+        {% if listing.active %}
+          <button type="submit" class="btn btn-primary">Place Bid</button>
+        {% else %}
+          <div class="alert alert-info" role="alert">
+            Listing no longer active{% if user.id == listing.bids.last.user.id %}, you won! {% endif %}
+          </div>
+        {% endif %}
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="details mb-3">
+    <h3>Details</h3>
+    <ul>
+      <li>Listed by {{ listing.author }}</li>
+      <li>Category: {{ listing.category|default_if_none:"Not Listed" }}</li>
+    </ul>
+  </div>
+
+  <div class="comments mb-3">
+    <p><strong>{{ comments.count }} Comments</strong></p>
+    <ul class="list-group list-group-flush">
+      {% for comment in comments %}
+        <li class="list-group-item">
+          <div><strong>{{ comment.user.username }}</strong></div>
+          {{ comment }}
+        </li>
+      {% endfor %}
+    </ul>
+    
+    {% if user.is_authenticated and listing.active %}
+      <form action="{% url 'comments' listing.id %}" method="post">
+        {% csrf_token %}
+
+        <input name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment ">
+        <button type="submit" class="btn btn-light">Comment</button>
+      </form>
+    {% endif %}
+
+  </div>
+
+  {% if user.id == listing.author.id %}
+    <div class="listing_state">
+      <form action="{% url 'listing_state' listing.id %}" method="post">
+        {% csrf_token %}
+
+        {% if listing.active %}
+          <button name="active" value="True" class="btn btn-secondary">Close auction</button>
+        {% else %}
+          <button name="active" value="" class="btn btn-outline-secondary">Reopen auction</button>
+        {% endif %}
+      </form>
+    </div>
+  {% endif %}
+{% endblock %}

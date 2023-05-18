@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+  <h2>Create listing</h2>
+
+  {% if messages %}
+    {% for message in messages %}
+    <div id="flash_message">
+      <p class="alert alert-danger" role="alert">{{ message }}</p>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <form action="{% url 'create_listing' %}" method="post" class="w-25 p-3">
+    {% csrf_token %}
+
+    <input name="title" type="text" placeholder="Title" required class="form-control" width="20px">
+    
+    <div class="input-group mb-3">
+      <span class="input-group-text">$</span>
+      <input name="price" type="number" min="0" placeholder="Price" required class="form-control">
+      <span class="input-group-text">.00</span>
+    </div>
+    <input name="picture" type="text" placeholder="picture url" class="form-control">
+    
+    <div class="input-group">
+      <span class="input-group-text">Description</span>
+      <textarea name="description" cols="60" rows="5"></textarea class="form-control">
+    </div>
+    <select name="category" class="form-select">
+      <option value="" selected>Categories</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}">{{ category }}</option>
+      {% endfor %}
+    </select>
+    <input type="submit" value="create listing" class="form-control">
+  </form>
+{% endblock %}
