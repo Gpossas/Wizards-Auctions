@@ -57,7 +57,7 @@
 
         <div class="input-group mb-3">
           <span class="input-group-text">$</span>
-          <input name="bid" type="number" class="form-control" aria-label="Dollar amount" placeholder="Bid">
+          <input name="bid" type="number" class="form-control" aria-label="Dollar amount" placeholder="Bid"  min="{{ listing.bids.last }}">
         </div>
 
         {% if listing.active %}
