@@ -139,3 +139,11 @@ class WatchlistTestCase(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Added to watchlist")
+    
+    def test_invalid_watchlist_form_add(self):
+        c = Client()
+        c.force_login(self.user)
+        response = c.post(reverse('watchlist_form', args=[0]), {'watchlist': ''})
+        self.assertEqual(response.status_code, 404)
+
+        
