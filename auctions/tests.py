@@ -1,4 +1,4 @@
-# from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.test import TestCase, Client
 from django.http import Http404
 from django.urls import reverse
@@ -128,7 +128,7 @@ class WatchlistTestCase(TestCase):
         response = c.post(reverse('watchlist_form', args=[1]))
         self.assertEqual(response.status_code, 302)
     
-    def test_valid_add(self):
+    def test_valid_watchlist_form_add(self):
         # w = Watchlist.objects.create(user=self.user_2, listing=self.potion)
         # listing_id: int = self.potion.id
         # print(listing_id, w)
@@ -137,6 +137,8 @@ class WatchlistTestCase(TestCase):
         response = c.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': ''})
         self.assertEqual(response.status_code, 302)
 
+        watchlist = get_object_or_404(Watchlist, user=self.user, listing=self.potion)
+        self.assertIsNotNone(watchlist)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Added to watchlist")
