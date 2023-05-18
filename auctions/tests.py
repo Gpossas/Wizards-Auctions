@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from django.test import TestCase, Client
 from django.http import Http404
 from django.urls import reverse
@@ -86,6 +85,7 @@ class CategoryTestCase(TestCase):
 
 class WatchlistTestCase(TestCase):
     def setUp(self):
+        self.client = Client()
         self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
         self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
         # create listings
@@ -113,37 +113,48 @@ class WatchlistTestCase(TestCase):
     
     # views
     def test_valid_user(self):
-        c = Client()
-        c.login(username="Alvo Dumbledore", password="123")
-        response = c.get(reverse('watchlist'))
+        self.client.login(username="Alvo Dumbledore", password="123")
+        response = self.client.get(reverse('watchlist'))
         self.assertEqual(response.status_code, 200)
 
     def test_user_not_logged(self):
         """
         return True if user is redirect to login page
         """
-        c = Client()
-        response = c.get(reverse('watchlist'))
+        response = self.client.get(reverse('watchlist'))
         self.assertEqual(response.status_code, 302)
-        response = c.post(reverse('watchlist_form', args=[1]))
+        self.assertEqual(response.url, '/login?next=/watchlist')
+        response = self.client.post(reverse('watchlist_form', args=[self.potion.id]))
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f'/login?next=/listing_page/watchlist/{self.potion.id}')
     
     def test_valid_watchlist_form_add(self):
-        c = Client()
-        c.force_login(self.user)
-        response = c.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': ''})
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': ''})
         self.assertEqual(response.status_code, 302)
 
-        watchlist = get_object_or_404(Watchlist, user=self.user, listing=self.potion)
+        watchlist = Watchlist.objects.get(user=self.user, listing=self.potion)
         self.assertIsNotNone(watchlist)
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Added to watchlist")
     
     def test_invalid_watchlist_form_add(self):
-        c = Client()
-        c.force_login(self.user)
-        response = c.post(reverse('watchlist_form', args=[0]), {'watchlist': ''})
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('watchlist_form', args=[0]), {'watchlist': ''})
         self.assertEqual(response.status_code, 404)
 
-        
+    def test_watchlist_form_deletion(self):
+        Watchlist.objects.create(user=self.user, listing=self.potion)
+
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': 'True'})
+        self.assertEqual(response.status_code, 302)
+
+        # assert that is not in watchlist anymore
+        with self.assertRaises(Watchlist.DoesNotExist):
+            Watchlist.objects.get(user=self.user, listing=self.potion)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Deleted from watchlist")
