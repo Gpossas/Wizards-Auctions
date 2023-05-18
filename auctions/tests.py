@@ -129,9 +129,6 @@ class WatchlistTestCase(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_valid_watchlist_form_add(self):
-        # w = Watchlist.objects.create(user=self.user_2, listing=self.potion)
-        # listing_id: int = self.potion.id
-        # print(listing_id, w)
         c = Client()
         c.force_login(self.user)
         response = c.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': ''})
