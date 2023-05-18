@@ -158,3 +158,16 @@ class WatchlistTestCase(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Deleted from watchlist")
+    
+    def test_fail_watchlist_form_deletion(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('watchlist_form', args=[self.potion.id]), {'watchlist': 'True'})
+        self.assertEqual(response.status_code, 302)
+
+        # assert that is not in watchlist
+        with self.assertRaises(Watchlist.DoesNotExist):
+            Watchlist.objects.get(user=self.user, listing=self.potion)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Can't delete from watchlist")
