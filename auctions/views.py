@@ -12,12 +12,8 @@ from .models import User, Listing, Category, Watchlist, Bid, Comments
 
 def index(request):
     listings = Listing.objects.all()
-    # use related_name to link bids to the respective listings instead Bids.objects because it may relate to the wrong bid and listing
-    # I put .last in template because the last bid will be the max, since we only add bids >= the last
-    # bids = Bid.objects.values('listing_id').annotate(bid=Max('price')).distinct()
     return render(request, "auctions/index.html", {
         "listings": listings,
-        # "bids": bids
     })
 
 
@@ -109,18 +105,22 @@ def comments(request, listing_id):
 
 # =============== BID ===============
 @login_required
-def place_bid(request, bid_id):
+def place_bid(request, last_bid_id):
     if request.method == "POST":
-        bid = int(request.POST["bid"] or 0)
-        last_bid = Bid.objects.get(pk=bid_id)
+        bid = request.POST["bid"]
+        last_bid = Bid.objects.get(pk=last_bid_id)
         
         # error handler
+        if not bid.isnumeric():
+            messages.error(request, "Bid must be a number")
+            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
+        bid = int(bid)
         if not last_bid.listing.active: 
             messages.error(request, "Auction is closed, listing no longer active")
-            return redirect(request.META.get('HTTP_REFERER'))
+            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
         if bid <= last_bid.price:
             messages.error(request, "Your bid should be greater than the last bid")
-            return redirect(request.META.get('HTTP_REFERER'))
+            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
         try:  
             bid = Bid.objects.create(
                 price = bid,
@@ -130,10 +130,10 @@ def place_bid(request, bid_id):
             bid.save()
         except:
             messages.error(request, "Can't place bid")
-            return redirect(request.META.get('HTTP_REFERER')) 
+            return redirect(reverse('listing_page', args=[last_bid.listing.id])) 
            
         messages.success(request, "Bid placed, you are ahead to get that item!")
-        return redirect(request.META.get('HTTP_REFERER'))         
+        return redirect(reverse('listing_page', args=[last_bid.listing.id]))         
 
 
 # =============== CATEGORY =============== 

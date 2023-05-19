@@ -1,7 +1,5 @@
 from django.test import TestCase, Client
-from django.http import Http404
 from django.urls import reverse
-# from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.contrib.messages import get_messages
 from .models import *
@@ -171,3 +169,76 @@ class WatchlistTestCase(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Can't delete from watchlist")
+
+class BidTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
+        self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
+        self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
+        Bid.objects.create(price=1, user=self.user, listing=self.listing)
+        Bid.objects.create(price=2, user=self.user, listing=self.listing)
+        self.max_bid = Bid.objects.create(price=4, user=self.user, listing=self.listing)
+    
+    def test_valid_bid(self):
+        """
+        return True when the price is higher than the maximum bid for the listing
+        """
+        bid = Bid.objects.create(price=self.max_bid.price + 1, user=self.user, listing=self.listing)
+        self.assertTrue(bid.is_valid_bid())
+    
+    def test_invalid_bid(self):
+        """
+        return False when the price is lower than the maximum bid for the listing
+        """
+        bid = Bid.objects.create(price=self.max_bid.price - 1, user=self.user, listing=self.listing)
+        self.assertFalse(bid.is_valid_bid())
+    
+    def test_bid_has_same_price_than_max(self):
+        """
+        return False when the price is equal to the maximum bid for the listing
+        """
+        bid = Bid.objects.create(price=self.max_bid.price, user=self.user, listing=self.listing)
+        self.assertFalse(bid.is_valid_bid())
+
+    # views
+    def test_valid_place_bid(self):
+        client = Client()
+        client.force_login(self.user)
+        response = client.post(reverse('place_bid', args=[self.max_bid.id]), {'bid': self.max_bid.price + 1})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Bid placed, you are ahead to get that item!")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+
+    def test_place_bid_invalid_bid(self):
+        client = Client()
+        client.force_login(self.user)
+        response = client.post(reverse('place_bid', args=[self.max_bid.id]), {'bid': 'venice'})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Bid must be a number")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+    
+    def test_place_bid_inative_auction(self):
+        client = Client()
+        client.force_login(self.user)
+        self.listing.active = False
+        self.listing.save()
+        response = client.post(reverse('place_bid', args=[self.max_bid.id]), {'bid': self.max_bid.price + 1})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Auction is closed, listing no longer active")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+    
+    def test_place_bid_smaller_than_last(self):
+        client = Client()
+        client.force_login(self.user)
+        response = client.post(reverse('place_bid', args=[self.max_bid.id]), {'bid': self.max_bid.price - 1})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Your bid should be greater than the last bid")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")

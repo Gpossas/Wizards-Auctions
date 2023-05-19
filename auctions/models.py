@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Max
 from django.db import models
 
 
@@ -21,8 +22,7 @@ class Category(models.Model):
     def __str__(self) -> str:
         return f"{self.name}"
 
-# should user be one-to-ne since no two users share the same watchlist, or foreignKey because two users can have the same listings in their watchlist?
-#TODO: update to one-to-one because we only have one watchlist per user
+
 class Watchlist(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='watchlist')
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='watchlist_items')
@@ -35,7 +35,10 @@ class Bid(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='bids')
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='bids')
     def __str__(self) -> str:
-        return f"{self.price}"
+        return f"{self.price}"  
+    def is_valid_bid(self):
+        max_bid = Bid.objects.filter(listing=self.listing).exclude(pk=self.pk).aggregate(max_bid=Max('price'))['max_bid']
+        return self.price > max_bid
     
 
 class Comments(models.Model):
