@@ -255,6 +255,8 @@ class CommentTestCase(TestCase):
         self.assertTrue(c.is_blank())
         c = Comments.objects.create(text='  ', user=self.user, listing=self.listing)
         self.assertTrue(c.is_blank())
+        c = Comments.objects.create(text='\n', user=self.user, listing=self.listing)
+        self.assertTrue(c.is_blank())
     
     def test_text(self):
         c = Comments.objects.create(text='I love this magic wand!', user=self.user, listing=self.listing)
