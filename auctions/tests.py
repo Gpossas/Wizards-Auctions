@@ -251,6 +251,10 @@ class CommentTestCase(TestCase):
     def test_is_blank(self):
         c = Comments.objects.create(text='', user=self.user, listing=self.listing)
         self.assertTrue(c.is_blank())
+        c = Comments.objects.create(text=' ', user=self.user, listing=self.listing)
+        self.assertTrue(c.is_blank())
+        c = Comments.objects.create(text='  ', user=self.user, listing=self.listing)
+        self.assertTrue(c.is_blank())
     
     def test_text(self):
         c = Comments.objects.create(text='I love this magic wand!', user=self.user, listing=self.listing)
@@ -268,14 +272,14 @@ class CommentTestCase(TestCase):
 
     def test_blank_comments(self):
         self.client.force_login(self.user)
-        response = self.client.post(reverse('comments', args=[self.listing.id]), {'comment': ''})
+        response = self.client.post(reverse('comments', args=[self.listing.id]), {'comment': ' '})
 
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "You can't leave blank comments")
         self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
 
-class CommentTestCase(TestCase):
+class ListingsTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")

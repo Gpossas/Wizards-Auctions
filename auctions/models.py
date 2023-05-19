@@ -48,4 +48,4 @@ class Comments(models.Model):
     def __str__(self) -> str:
         return f"{self.text}"
     def is_blank(self):
-        return len(self.text) == 0
+        return not self.text or self.text.isspace()

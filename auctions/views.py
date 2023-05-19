@@ -89,7 +89,7 @@ def listing_state(request, listing_id):
 @login_required
 def comments(request, listing_id):
     if request.method == "POST":
-        if not request.POST["comment"]:
+        if not request.POST["comment"] or request.POST["comment"].isspace():
             messages.error(request, "You can't leave blank comments")
             return redirect(reverse('listing_page', args=[listing_id]))
 
