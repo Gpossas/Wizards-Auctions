@@ -47,3 +47,5 @@ class Comments(models.Model):
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='comments')
     def __str__(self) -> str:
         return f"{self.text}"
+    def is_blank(self):
+        return len(self.text) == 0

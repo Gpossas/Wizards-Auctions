@@ -173,7 +173,6 @@ class WatchlistTestCase(TestCase):
 class BidTestCase(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
-        self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
         self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
         Bid.objects.create(price=1, user=self.user, listing=self.listing)
         Bid.objects.create(price=2, user=self.user, listing=self.listing)
@@ -241,4 +240,38 @@ class BidTestCase(TestCase):
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Your bid should be greater than the last bid")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+
+class CommentTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
+        self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
+        self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
+    
+    def test_is_blank(self):
+        c = Comments.objects.create(text='', user=self.user, listing=self.listing)
+        self.assertTrue(c.is_blank())
+    
+    def test_text(self):
+        c = Comments.objects.create(text='I love this magic wand!', user=self.user, listing=self.listing)
+        self.assertEqual(c.text, "I love this magic wand!")
+    
+    # views
+    def test_add_comments(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('comments', args=[self.listing.id]), {'comment': 'hello world'})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Added comment")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+
+    def test_blank_comments(self):
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('comments', args=[self.listing.id]), {'comment': ''})
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "You can't leave blank comments")
         self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")

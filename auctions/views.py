@@ -91,7 +91,7 @@ def comments(request, listing_id):
     if request.method == "POST":
         if not request.POST["comment"]:
             messages.error(request, "You can't leave blank comments")
-            return redirect(request.META.get('HTTP_REFERER'))
+            return redirect(reverse('listing_page', args=[listing_id]))
 
         comment = Comments.objects.create(
             text = request.POST["comment"],
@@ -101,7 +101,7 @@ def comments(request, listing_id):
         comment.save()
 
         messages.success(request, "Added comment")
-        return redirect(request.META.get('HTTP_REFERER'))
+        return redirect(reverse('listing_page', args=[listing_id]))
 
 # =============== BID ===============
 @login_required
