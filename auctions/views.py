@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+
 from django.contrib import messages
 
 from .models import User, Listing, Category, Watchlist, Bid, Comments
@@ -74,15 +75,24 @@ def listing_page(request, listing_id):
 
 @login_required
 def listing_state(request, listing_id):
+    """
+    open or close an auction by changing listing.active
+    """
+    
     if request.method == "POST":
-        # TODO: set user permissions/authentication
+        listing = get_object_or_404(Listing, pk=listing_id)
+        if request.user != listing.author:
+            raise PermissionDenied
+
         if request.POST["active"]:
-            Listing.objects.filter(pk=listing_id).update(active=False)
+            listing.active = False
+            listing.save()
             messages.success(request, "Auction closed")
         else:
-            Listing.objects.filter(pk=listing_id).update(active=True)
+            listing.active = True
+            listing.save()
             messages.success(request, "Auction reopen")
-        return redirect(request.META.get('HTTP_REFERER'))
+        return redirect(reverse('listing_page', args=[listing_id]))
 
 
 # =============== COMMENTS ===============

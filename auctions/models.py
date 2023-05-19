@@ -16,6 +16,8 @@ class Listing(models.Model):
     active = models.BooleanField(default=True)
     def __str__(self) -> str:
         return f"{self.title}"
+    def is_blank(self):
+        return not self.title or self.title.isspace()
 
 class Category(models.Model):
     name = models.CharField(max_length=30, unique=True)

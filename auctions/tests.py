@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.http import Http404
 from django.db import IntegrityError
 from django.contrib.messages import get_messages
 from .models import *
@@ -260,7 +261,7 @@ class CommentTestCase(TestCase):
     
     def test_text(self):
         c = Comments.objects.create(text='I love this magic wand!', user=self.user, listing=self.listing)
-        self.assertEqual(c.text, "I love this magic wand!")
+        self.assertEqual(str(c), "I love this magic wand!")
     
     # views
     def test_add_comments(self):
@@ -283,8 +284,114 @@ class CommentTestCase(TestCase):
 
 class ListingsTestCase(TestCase):
     def setUp(self):
-        self.client = Client()
         self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
+        self.client = Client()
+        self.client.force_login(self.user)
         self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
-        self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
+        self.category = Category.objects.create(name="clothing")
+        self.listing = Listing.objects.create(
+            title="Invisibility Cloak", 
+            author=self.user,
+            description="where am I lol",
+            picture="cloak.jpg",
+            category=self.category,
+            active=False
+        )
+
+    def test_listing_creation(self):
+        """
+        Test that a listing is created correctly
+        """
+        self.assertEqual(self.listing.title, "Invisibility Cloak")
+        self.assertEqual(self.listing.author, self.user)
+        self.assertEqual(self.listing.description, "where am I lol")
+        self.assertEqual(self.listing.picture, "cloak.jpg")
+        self.assertEqual(self.listing.category, self.category)
+        self.assertEqual(self.listing.active, False)
     
+    def test_listing_string_representation(self):
+        """
+        Test the string representation of a listing
+        """
+        self.assertEqual(str(self.listing), "Invisibility Cloak")
+    
+    def test_listing_text_blank(self):
+        """
+        Test if listing text is blank
+        """
+        self.assertFalse(self.listing.is_blank())
+        self.assertTrue(Listing.objects.create(title="", author=self.user).is_blank())
+        self.assertTrue(Listing.objects.create(title=" ", author=self.user).is_blank())
+        self.assertTrue(Listing.objects.create(title="\n", author=self.user).is_blank())
+    
+    def test_listing_category_relation(self):
+        """
+        Test the relation between a listing and its category
+        """
+        self.assertEqual(self.listing.category.name, "clothing")
+        self.assertIn(self.listing, self.category.listings.all())
+
+    def test_listing_author_relation(self):
+        """
+        Test the relation between a listing and its author
+        """
+        self.assertEqual(self.listing.author.username, "Alvo Dumbledore")
+        self.assertIn(self.listing, self.user.author_listings.all())
+    
+    # views
+    def test_listing_state_error_listing(self):
+        """
+        Raise error if query don't return listing
+        """
+        response = self.client.post(reverse('listing_state', args=[0]))
+        self.assertEqual(response.status_code, 404)
+    
+    def test_listing_state_active(self):
+        """
+        return True if it change from true to false state and close auction
+        """
+        listing = Listing.objects.create(active=True, title='potion', author=self.user)
+
+        response = self.client.post(reverse('listing_state', args=[listing.id]), {'active': 'True'})
+        self.assertEqual(response.status_code, 302)
+        state_before = listing.active
+        state_after = Listing.objects.get(pk=listing.id).active
+        self.assertNotEqual(state_before, state_after)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Auction closed")
+        self.assertEqual(messages[0].tags, "success")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[listing.id])}")
+    
+    def test_listing_state_inactive(self):
+        """
+        return True if it change from state false to true and reopen auction
+        """
+        listing = Listing.objects.create(active=False, title='potion', author=self.user)
+
+        response = self.client.post(reverse('listing_state', args=[listing.id]), {'active': ''})
+        self.assertEqual(response.status_code, 302)
+        state_before = listing.active
+        state_after = Listing.objects.get(pk=listing.id).active
+        self.assertNotEqual(state_before, state_after)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Auction reopen")
+        self.assertEqual(messages[0].tags, "success")
+        self.assertEqual(response.url, f"{reverse('listing_page', args=[listing.id])}")
+    
+    def test_listing_state_not_author(self):
+        """
+        return True if raise error if an user that is not the author of the auction try to change state
+        """
+        listing = Listing.objects.create(active=True, title='potion', author=self.user)
+
+        self.client.force_login(self.user_2)
+        response = self.client.post(reverse('listing_state', args=[listing.id]), {'active': 'True'})
+        self.assertEqual(response.status_code, 403)
+        # don't change state
+        state_before = listing.active
+        state_after = Listing.objects.get(pk=listing.id).active
+        self.assertEqual(state_before, state_after)
