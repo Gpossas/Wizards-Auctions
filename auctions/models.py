@@ -6,6 +6,7 @@ from django.db import models
 class User(AbstractUser):
     pass
 
+
 class Listing(models.Model):
     title = models.CharField(max_length=30)
     date = models.DateTimeField(auto_now_add=True)
@@ -18,6 +19,7 @@ class Listing(models.Model):
         return f"{self.title}"
     def is_blank(self):
         return not self.title or self.title.isspace()
+
 
 class Category(models.Model):
     name = models.CharField(max_length=30, unique=True)

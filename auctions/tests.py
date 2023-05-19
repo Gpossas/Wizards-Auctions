@@ -403,6 +403,23 @@ class ListingsTestCase(TestCase):
         state_after = Listing.objects.get(pk=listing.id).active
         self.assertEqual(state_before, state_after)
     
+    def test_creating_listing_not_logged(self):
+        """
+        Test if user is redirected to login if not logged
+        """
+        client = Client()
+        response = client.get(reverse('create_listing'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f"{reverse('login')}?next={reverse('create_listing')}")
+
+    def test_get_creating_listing(self):
+        """
+        Test get request to creating listing
+        """
+        response = self.client.get(reverse('create_listing'))
+        self.assertEqual(response.context['categories'].count(), 1)
+        self.assertEqual(response.status_code, 200)
+    
     def test_creating_listing(self):
         """
         Test complete listing
@@ -410,16 +427,12 @@ class ListingsTestCase(TestCase):
         add_listing = {
             'title': 'Invisibility Cloak',
             'price': 7890,
-            'author': self.user,
             'description': 'Where am I?',
             'picture': 'cloak.jpg',
             'category': self.category.id
         }
-        # listing = Listing.objects.create(**add_listing)
-
         response = self.client.post(reverse('create_listing'), add_listing)
         self.assertEqual(response.status_code, 302)
-        # self.assertEqual(listing, Listing.objects.last)
         
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
@@ -427,25 +440,24 @@ class ListingsTestCase(TestCase):
         self.assertEqual(messages[0].tags, "success")
         self.assertEqual(response.url, f"{reverse('index')}")
     
-    # def test_creating_listing_defaults(self):
-    #     """
-    #     Test the default values of a listing
-    #     """
-    #     response = self.client.post(
-    #         reverse('create_listing'),
-    #         {
-    #             'title': 'Invisibility Cloak',
-    #             'price': 7890,
-    #             'author': self.user,
-    #             'description': 'Where am I?',
-    #             'picture': 'cloak.jpg',
-    #             'category': self.category.id
-    #         }
-    #     )
-    #     self.assertEqual(response.status_code, 302)
+    def test_creating_listing_defaults(self):
+        """
+        Test the default values of a listing
+        """
+        add_listing = {
+            'title': 'Invisibility Cloak',
+            'price': 7890,
+            'category': '',
+            'description': '',
+            'picture': '',
+        }
+        response = self.client.post(reverse('create_listing'), add_listing)
+        self.assertEqual(response.status_code, 302)
         
-    #     messages = list(get_messages(response.wsgi_request))
-    #     self.assertEqual(len(messages), 1)
-    #     self.assertEqual(str(messages[0]), "Listing created!")
-    #     self.assertEqual(messages[0].tags, "success")
-    #     self.assertEqual(response.url, f"{reverse('index')}")
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Listing created!")
+        self.assertEqual(messages[0].tags, "success")
+        self.assertEqual(response.url, f"{reverse('index')}")
+
+    

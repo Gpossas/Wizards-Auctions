@@ -22,27 +22,23 @@ def index(request):
 @login_required
 def create_listing(request):
     if request.method == "POST":
-        title = request.POST["title"]
-        price = request.POST["price"]
-        author = request.user
-        description = request.POST["description"]
-        picture = request.POST["picture"]
         category_id = request.POST["category"]
-        category = Category.objects.get(pk=category_id) if category_id else None
+        price = request.POST["price"]
+        listing_data = {
+            'title': request.POST["title"],
+            'author': request.user,
+            'description': request.POST["description"],
+            'picture': request.POST["picture"],
+            'category': Category.objects.get(pk=category_id) if category_id.isnumeric() else None
+        }
+        # only put attributes with values, otherwise use default values from database
+        listing_data = {attribute:value for attribute,value in listing_data.items() if value}
 
-        # TODO: uma forma/ função para só criar com as variaveis com valor True, ex: default em models só funciona se eu não passar essa variavel aqui
-        # então preciso de uma forma que só use as variaveis que tenham um valor p/ usar default em models
         try:  
-            listing = Listing.objects.create(
-                title=title,
-                author=author,
-                description=description,
-                picture=picture,
-                category=category
-            )
+            listing = Listing.objects.create(**listing_data)
             bid = Bid.objects.create(
                 price = price,
-                user = author,
+                user = listing_data["author"],
                 listing = listing
             )
             listing.save()
