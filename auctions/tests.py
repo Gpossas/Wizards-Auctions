@@ -339,6 +339,13 @@ class ListingsTestCase(TestCase):
         self.assertIn(self.listing, self.user.author_listings.all())
     
     # views
+    def test_listing_state_not_logged(self):
+        client = Client()
+        response = client.post(reverse('listing_state', args=[self.listing.id]), {'active': ''})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f"{reverse('login')}?next={reverse('listing_state', args=[self.listing.id])}")
+
+
     def test_listing_state_error_listing(self):
         """
         Raise error if query don't return listing
