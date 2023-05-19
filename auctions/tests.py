@@ -246,7 +246,6 @@ class CommentTestCase(TestCase):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
-        self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
         self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
     
     def test_is_blank(self):
@@ -275,3 +274,11 @@ class CommentTestCase(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "You can't leave blank comments")
         self.assertEqual(response.url, f"{reverse('listing_page', args=[self.listing.id])}")
+
+class CommentTestCase(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(username="Alvo Dumbledore", password="123")
+        self.user_2 = User.objects.create_user(username="Tom Riddle", password="123")
+        self.listing = Listing.objects.create(title="Invisibility Cloak", author=self.user)
+    
