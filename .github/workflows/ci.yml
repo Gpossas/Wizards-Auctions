@@ -1,0 +1,12 @@
+name: Testing
+on: push
+
+jobs:
+  test_project:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run django unit tests
+        run: |
+          pip install Django
+          python manage.py test
