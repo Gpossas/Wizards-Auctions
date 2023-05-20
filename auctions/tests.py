@@ -297,6 +297,7 @@ class ListingsTestCase(TestCase):
             category=self.category,
             active=False
         )
+        Bid.objects.create(price=1, listing=self.listing, user=self.user)
 
     def test_listing_creation(self):
         """
@@ -460,4 +461,54 @@ class ListingsTestCase(TestCase):
         self.assertEqual(messages[0].tags, "success")
         self.assertEqual(response.url, f"{reverse('index')}")
 
+    def test_listing_page_invalid_listing(self):
+        """
+        return true if invalid page response is 404
+        """
+        max_id = Listing.objects.all().aggregate(max_id=Max('id'))['max_id']
+        response = self.client.get(reverse('listing_page', args=[max_id+1]))
+        self.assertEqual(response.status_code, 404)
     
+    def test_listing_page_not_in_watchlist(self):
+        response = self.client.get(reverse('listing_page', args=[self.listing.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['in_watchlist'])
+    
+    def test_listing_page_in_watchlist(self):
+        in_watchlist = Watchlist.objects.create(listing=self.listing, user=self.user)
+
+        response = self.client.get(reverse('listing_page', args=[self.listing.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['in_watchlist'], in_watchlist)
+    
+    def test_listing_page_not_added_to_other_users(self):
+        """
+        test when a user add a listing to watchlist, this listing is not added to the watchlist of another user
+        """
+        Watchlist.objects.create(listing=self.listing, user=self.user)
+        self.client.force_login(self.user_2)
+        response = self.client.get(reverse('listing_page', args=[self.listing.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context['in_watchlist'])
+
+    def test_listing_page_comments(self):
+        """
+        test number of comments, text and only show the comments of this listing
+        """
+        Comments.objects.create(text='nice cloak 0_0', listing=self.listing, user=self.user)
+
+        ankh_shield_listing = Listing.objects.create(title='ankh shield', author=self.user)
+        Bid.objects.create(price=1, user=self.user, listing=ankh_shield_listing)
+        Comments.objects.create(text='Terrarian!', listing=ankh_shield_listing, user=self.user)
+        Comments.objects.create(text='eye of cthulhu', listing=ankh_shield_listing, user=self.user)
+
+        response = self.client.get(reverse('listing_page', args=[ankh_shield_listing.id]))
+        self.assertEqual(response.context['comments'].count(), 2)
+        self.assertEqual(str(response.context['comments'][0]), 'Terrarian!')
+    
+    def test_index_page(self):
+        Listing.objects.create(title='ankh shield', author=self.user)
+        Listing.objects.create(title='speed boots', author=self.user)
+        response = self.client.get(reverse('index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['listings'].count(), 3)

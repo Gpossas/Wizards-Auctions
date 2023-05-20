@@ -57,9 +57,8 @@ def create_listing(request):
 def listing_page(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
 
-    watchlist = True
     try: 
-        Watchlist.objects.get(listing=listing, user=request.user) 
+        watchlist = Watchlist.objects.get(listing=listing, user=request.user) 
     except ObjectDoesNotExist: 
         watchlist = False
 
