@@ -1,6 +1,5 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.http import Http404
 from django.db import IntegrityError
 from django.contrib.messages import get_messages
 from .models import *
