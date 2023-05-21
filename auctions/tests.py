@@ -460,6 +460,14 @@ class ListingsTestCase(TestCase):
         self.assertEqual(messages[0].tags, "success")
         self.assertEqual(response.url, f"{reverse('index')}")
 
+    def test_not_logged_listing_page(self):
+        """
+        test if a not logged user can access the page
+        """
+        client = Client()
+        response = client.get(reverse('listing_page', args=[self.listing.id]))
+        self.assertEqual(response.status_code, 200)
+
     def test_listing_page_invalid_listing(self):
         """
         return true if invalid page response is 404

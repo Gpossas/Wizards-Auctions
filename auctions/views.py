@@ -59,7 +59,7 @@ def listing_page(request, listing_id):
 
     try: 
         watchlist = Watchlist.objects.get(listing=listing, user=request.user) 
-    except ObjectDoesNotExist: 
+    except (ObjectDoesNotExist, TypeError): 
         watchlist = False
 
     return render(request, "auctions/listing_page.html", {
