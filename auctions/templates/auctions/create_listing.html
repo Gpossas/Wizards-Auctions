@@ -13,26 +13,44 @@
 
   <form action="{% url 'create_listing' %}" method="post" class="w-25 p-3">
     {% csrf_token %}
-
-    <input name="title" type="text" placeholder="Title" required class="form-control" width="20px">
-    
+  
+    <div class="mb-3">
+      <input name="title" type="text" placeholder="Title" required class="form-control">
+    </div>
+  
     <div class="input-group mb-3">
       <span class="input-group-text">$</span>
-      <input name="price" type="number" min="0" placeholder="Price" required class="form-control">
-      <span class="input-group-text">.00</span>
+      <input id="price" name="price" type="text" placeholder="Price" required class="form-control">
     </div>
-    <input name="picture" type="text" placeholder="picture url" class="form-control">
-    
-    <div class="input-group">
+  
+    <div class="input-group mb-3">
+      <span class="input-group-text">@</span>
+      <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping">
+    </div>
+  
+    <div class="mb-3">
+      <input name="picture" type="text" placeholder="Picture URL" class="form-control">
+    </div>
+  
+    <div class="mb-3">
       <span class="input-group-text">Description</span>
-      <textarea name="description" cols="60" rows="5"></textarea class="form-control">
+      <textarea name="description" cols="60" rows="5" class="form-control"></textarea>
     </div>
-    <select name="category" class="form-select">
-      <option value="" selected>Categories</option>
-      {% for category in categories %}
+  
+    <div class="mb-3">
+      <select name="category" class="form-select">
+        <option value="" selected>Categories</option>
+        {% for category in categories %}
         <option value="{{ category.id }}">{{ category }}</option>
-      {% endfor %}
-    </select>
-    <input type="submit" value="create listing" class="form-control">
+        {% endfor %}
+      </select>
+    </div>
+  
+    <input class="submit-button" type="submit" value="Create Listing" class="btn btn-primary">
   </form>
+  
+
+  <script >
+    $('#price').priceFormat();
+  </script>
 {% endblock %}
