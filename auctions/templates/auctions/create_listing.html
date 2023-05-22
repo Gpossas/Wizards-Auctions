@@ -1,56 +1,55 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-  <h2>Create listing</h2>
+<h2>Create listing</h2>
 
-  {% if messages %}
-    {% for message in messages %}
-    <div id="flash_message">
-      <p class="alert alert-danger" role="alert">{{ message }}</p>
-    </div>
-    {% endfor %}
-  {% endif %}
+{% if messages %}
+{% for message in messages %}
+<div id="flash_message">
+  <p class="alert alert-danger" role="alert">{{ message }}</p>
+</div>
+{% endfor %}
+{% endif %}
 
-  <form action="{% url 'create_listing' %}" method="post" class="w-25 p-3">
+<div class="form-wrapper">
+  <form action="{% url 'create_listing' %}" method="post">
     {% csrf_token %}
-  
-    <div class="mb-3">
-      <input name="title" type="text" placeholder="Title" required class="form-control">
+
+    <div class="form-group">
+      <label for="title" class="form-label">Title</label>
+      <input id="title" name="title" type="text" required class="form-control">
     </div>
-  
-    <div class="input-group mb-3">
-      <span class="input-group-text">$</span>
-      <input id="price" name="price" type="text" placeholder="Price" required class="form-control">
+
+    <div class="form-group">
+      <label for="price" class="form-label">Price</label>
+      <input id="price" name="price" type="text" required class="form-control">
     </div>
-  
-    <div class="input-group mb-3">
-      <span class="input-group-text">@</span>
-      <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping">
+
+    <div class="form-group">
+      <label for="picture" class="form-label">Picture URL</label>
+      <input id="picture" name="picture" type="text" class="form-control">
     </div>
-  
-    <div class="mb-3">
-      <input name="picture" type="text" placeholder="Picture URL" class="form-control">
+
+    <div class="form-group">
+      <label for="description" class="form-label">Description</label>
+      <textarea id="description" name="description" cols="60" rows="5" class="form-control"></textarea>
     </div>
-  
-    <div class="mb-3">
-      <span class="input-group-text">Description</span>
-      <textarea name="description" cols="60" rows="5" class="form-control"></textarea>
-    </div>
-  
-    <div class="mb-3">
-      <select name="category" class="form-select">
+
+    <div class="form-group">
+      <label for="category" class="form-label">Category</label>
+      <select id="category" name="category" class="form-control">
         <option value="" selected>Categories</option>
         {% for category in categories %}
-        <option value="{{ category.id }}">{{ category }}</option>
+          <option value="{{ category.id }}">{{ category }}</option>
         {% endfor %}
       </select>
     </div>
-  
-    <input class="submit-button" type="submit" value="Create Listing" class="btn btn-primary">
-  </form>
-  
 
-  <script >
-    $('#price').priceFormat();
-  </script>
+    <input type="submit" value="Create Listing" class="submit-button">
+  </form>
+</div>
+
+<script>
+  $('#price').priceFormat();
+</script>
 {% endblock %}
