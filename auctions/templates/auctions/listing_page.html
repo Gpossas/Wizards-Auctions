@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load price_format %}
 
 {% block body %}
   <h2>Listing: {{ listing }}</h2>
@@ -45,7 +46,7 @@
   </div>
   
   <div class="bids mb-3">
-    <h2>${{ listing.bids.last }}</h2> 
+    <h2>${{ listing.bids.last|currency_format }}</h2> 
     <p>
       {{ listing.bids.count }} bid(s) so far. 
       {% if user.id == listing.bids.last.user.id %} Your bid is the current bid {% endif %}

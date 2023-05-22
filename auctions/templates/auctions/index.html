@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load price_format %}
 
 {% block body %}
   {% if messages %}
@@ -19,7 +20,7 @@
            alt="{{ listing.title }}" height="200px">
           <p><strong>{{ listing.title|capfirst }}</strong></p>
           <p>
-            <strong>price: $</strong>{{ listing.bids.last }}.00
+            <strong>price: $</strong>{{ listing.bids.last|currency_format }}
           </p>
           {% if listing.description %}
             <p>{{ listing.description|capfirst }}</p>

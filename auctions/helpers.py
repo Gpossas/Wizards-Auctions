@@ -60,7 +60,7 @@ def format_string_as_int(string: str) -> str:
             num = ''.join((num, char))
     if not num: 
         raise ValueError('argument entirely non-numeric')
-    return int(num)
+    return num
 
 def put_cents(num: str) -> str:
     digits = len(num)
@@ -85,7 +85,3 @@ def put_comma_every_three_digits(num: str) -> str:
         formated_num = ''.join((num[i], formated_num))
         count += 1
     return ''.join((formated_num, num[-DECIMAL_PLACES::]))
-
-# print(format_to_price('123456789000'))
-# print(int('ascsa'))
-print(trim_non_numeric_and_cast_int('asdsac3'))

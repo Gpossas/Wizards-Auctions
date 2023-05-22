@@ -1,49 +1,42 @@
-def currency_format_to_int(price: str) -> int:
-    """
-    transform a string in currency format to int value. A ValueError is raised if string is entirely non-numeric
-    """
-    # edge-cases: price = '' -> 0; price = '-1' -> 1; price = 'fgh' -> raise ValueError; 
+from django import template
+from django.template.defaultfilters import stringfilter
 
-    value = ''
-    for char in price:
-        if '0' <= char <= '9': 
-            value = ''.join((value, char))
-    if value: 
-        return int(value) 
-    else: 
-        raise ValueError('argument entirely non-numeric')
+register = template.Library()
 
-
-def format_to_price(num: str | int) -> str:
+@register.filter(name="currency_format")
+@stringfilter
+def format_to_currency(num: str) -> str:
     """
-    format a num to price format\n
+    format a num to currency format\n
     Examples: 
         '89' -> $ 0.89 \n
         '758954' -> $ 7,589.54\n
         'only_chars' -> $ 0.00
     """
-
-    num = remove_left_zeroes_and_non_numeric_chars(num)
+    num = format_string_as_int(num)
     num = put_cents(num)
     num = put_comma_every_three_digits(num)
-      
     return num
 
-def remove_left_zeroes_and_non_numeric_chars(num) -> str:
+def format_string_as_int(string: str) -> str:
     """
-    if the string only contains non-numeric chars, don't raise an error, return 0 instead
+    remove non-numeric characters and left zeroes\n
+    A ValueError is raised if string is entirely non-numeric\n
+    Examples:\n
+        '$ 89.45' -> 8945\n
+        '0000' -> 0\n
+        '45bar64' -> 4564\n
+        'foo' -> raise ValueError
     """
-    if isinstance(num, int):
-        return str(num)
 
-    cleaned = ''
+    num = ''
     first_digit_found = False
-    for char in num:
+    for char in string:
         if not first_digit_found and '1' <= char <= '9': 
             first_digit_found = True
         if first_digit_found and '0' <= char <= '9': 
-            cleaned = ''.join((cleaned, char))
-    return cleaned or '0'
+            num = ''.join((num, char))
+    return num or '0'
 
 def put_cents(num: str) -> str:
     digits = len(num)
@@ -68,7 +61,3 @@ def put_comma_every_three_digits(num: str) -> str:
         formated_num = ''.join((num[i], formated_num))
         count += 1
     return ''.join((formated_num, num[-DECIMAL_PLACES::]))
-
-# print(format_to_price('123456789000'))
-print(currency_format_to_int('a'))
-# print(int('ascas'))
