@@ -1,12 +1,13 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-
 from django.contrib import messages
 
+from .helpers import format_string_as_int, ListingNotActive, BidTooLow
 from .models import User, Listing, Category, Watchlist, Bid, Comments
 
 #TODO: fazer uma pagina padrão pra trouxas(quem não ta logado) com listing normais e chatos
@@ -23,7 +24,6 @@ def index(request):
 def create_listing(request):
     if request.method == "POST":
         category_id = request.POST["category"]
-        price = request.POST["price"]
         listing_data = {
             'title': request.POST["title"],
             'author': request.user,
@@ -34,15 +34,19 @@ def create_listing(request):
         # only put attributes with values, otherwise use default values from database
         listing_data = {attribute:value for attribute,value in listing_data.items() if value}
 
-        try:  
+        try: 
+            price = format_string_as_int(request.POST["price"])
             listing = Listing.objects.create(**listing_data)
             bid = Bid.objects.create(
-                price = price,
+                price = int(price),
                 user = listing_data["author"],
                 listing = listing
             )
             listing.save()
             bid.save()
+        except ValueError:
+            messages.error(request, "Price must be numeric")
+            return redirect(reverse('create_listing'))
         except:
             messages.error(request, "Can't create listing")
             return redirect(reverse('create_listing'))
@@ -112,30 +116,32 @@ def comments(request, listing_id):
 @login_required
 def place_bid(request, last_bid_id):
     if request.method == "POST":
-        bid = request.POST["bid"]
-        last_bid = Bid.objects.get(pk=last_bid_id)
-        
-        # error handler
-        if not bid.isnumeric():
-            messages.error(request, "Bid must be a number")
-            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
-        bid = int(bid)
-        if not last_bid.listing.active: 
-            messages.error(request, "Auction is closed, listing no longer active")
-            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
-        if bid <= last_bid.price:
-            messages.error(request, "Your bid should be greater than the last bid")
-            return redirect(reverse('listing_page', args=[last_bid.listing.id]))
-        try:  
+        try:
+            exception_flag = True
+            last_bid = Bid.objects.get(pk=last_bid_id)
+            bid = int(format_string_as_int(request.POST["bid"]))
+            if not last_bid.listing.active: raise ListingNotActive
+            if bid <= last_bid.price: raise BidTooLow
             bid = Bid.objects.create(
                 price = bid,
                 user = request.user,
                 listing = last_bid.listing
             )
             bid.save()
+            exception_flag = False
+        except (Bid.DoesNotExist, Bid.MultipleObjectsReturned):
+            raise Http404
+        except ValueError:
+            messages.error(request, "Bid must be a number")
+        except ListingNotActive: 
+            messages.error(request, "Auction is closed, listing no longer active")
+        except BidTooLow:
+            messages.error(request, "Your bid should be greater than the last bid")
         except:
             messages.error(request, "Can't place bid")
-            return redirect(reverse('listing_page', args=[last_bid.listing.id])) 
+        finally:
+            if exception_flag:
+                return redirect(reverse('listing_page', args=[last_bid.listing.id]))
            
         messages.success(request, "Bid placed, you are ahead to get that item!")
         return redirect(reverse('listing_page', args=[last_bid.listing.id]))         
