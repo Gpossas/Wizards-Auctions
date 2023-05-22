@@ -459,6 +459,27 @@ class ListingsTestCase(TestCase):
         self.assertEqual(str(messages[0]), "Listing created!")
         self.assertEqual(messages[0].tags, "success")
         self.assertEqual(response.url, f"{reverse('index')}")
+    
+    def test_creating_listing_invalid_category_id(self):
+        """
+        Test complete listing
+        """
+        max_id = Category.objects.all().aggregate(max_id=Max('id'))['max_id']
+        add_listing = {
+            'title': 'Invisibility Cloak',
+            'price': 7890,
+            'description': 'Where am I?',
+            'picture': 'cloak.jpg',
+            'category': max_id + 1
+        }
+        response = self.client.post(reverse('create_listing'), add_listing)
+        self.assertEqual(response.status_code, 302)
+        
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), "Select one of the listed categories")
+        self.assertEqual(messages[0].tags, "error")
+        self.assertEqual(response.url, f"{reverse('index')}")
 
     def test_not_logged_listing_page(self):
         """

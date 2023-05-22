@@ -23,33 +23,38 @@ def index(request):
 @login_required
 def create_listing(request):
     if request.method == "POST":
-        category_id = request.POST["category"]
-        listing_data = {
-            'title': request.POST["title"],
-            'author': request.user,
-            'description': request.POST["description"],
-            'picture': request.POST["picture"],
-            'category': Category.objects.get(pk=category_id) if category_id.isnumeric() else None
-        }
-        # only put attributes with values, otherwise use default values from database
-        listing_data = {attribute:value for attribute,value in listing_data.items() if value}
-
-        try: 
+        try:
+            exception_flag = True
+            category = Category.objects.get(pk=request.POST["category"]) if request.POST["category"] != '' else None
+            listing_data = {
+                'title': request.POST["title"],
+                'author': request.user,
+                'description': request.POST["description"],
+                'picture': request.POST["picture"],
+                'category': category
+            }
+            # only put attributes with values, otherwise use default values from database
+            listing_data = {attribute:value for attribute,value in listing_data.items() if value}
+            
             price = format_string_as_int(request.POST["price"])
             listing = Listing.objects.create(**listing_data)
             bid = Bid.objects.create(
-                price = int(price),
+                price = price,
                 user = listing_data["author"],
                 listing = listing
             )
             listing.save()
             bid.save()
+            exception_flag = False
+        except Category.DoesNotExist:
+            messages.error(request, "Select one of the listed categories")
         except ValueError:
-            messages.error(request, "Price must be numeric")
-            return redirect(reverse('create_listing'))
+            messages.error(request, "Price must be numeric")            
         except:
             messages.error(request, "Can't create listing")
-            return redirect(reverse('create_listing'))
+        finally:
+            if exception_flag:
+                return redirect(reverse('create_listing'))
         
         messages.success(request, 'Listing created!')
         return redirect(reverse("index"))
