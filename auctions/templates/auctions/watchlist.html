@@ -3,11 +3,13 @@
 {% block body %}
   <h2>Watchlist</h2>
 
-  <ul>
-    {% for listing in watchlist %}
-      <a href="{% url 'listing_page' listing.listing.id %}"><li>{{ listing.listing }}</li></a>
-    {% empty %}
-      <p>Your watchlist is empty, add your favorites products</p>
-    {% endfor %}
-  </ul>
+  <div class="list">
+    <ul class="list-group list-group-flush">
+      {% for listing in watchlist %}
+        <a href="{% url 'listing_page' listing.listing.id %}" class="list-group-item" ><li>{{ listing.listing }}</li></a>
+      {% empty %}
+        <p>Your watchlist is empty, add your favorites products</p>
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}

@@ -55,9 +55,9 @@
       <form action="{% url 'place_bid' listing.bids.last.id %}" method="post" class="w-25">
         {% csrf_token %}
 
-        <div class="input-group mb-3">
-          <span class="input-group-text">$</span>
-          <input name="bid" type="number" class="form-control" aria-label="Dollar amount" placeholder="Bid"  min="{{ listing.bids.last }}">
+        <div class="form-group">
+          <label for="price" class="form-label">Bid</label>
+          <input name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
         </div>
 
         {% if listing.active %}
@@ -114,4 +114,8 @@
       </form>
     </div>
   {% endif %}
+
+  <script>
+    $('#price').priceFormat();
+  </script>
 {% endblock %}
