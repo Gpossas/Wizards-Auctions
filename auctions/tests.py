@@ -479,7 +479,7 @@ class ListingsTestCase(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), "Select one of the listed categories")
         self.assertEqual(messages[0].tags, "error")
-        self.assertEqual(response.url, f"{reverse('index')}")
+        self.assertEqual(response.url, f"{reverse('create_listing')}")
 
     def test_not_logged_listing_page(self):
         """
