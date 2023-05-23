@@ -17,9 +17,11 @@
 
 <div class="listing-page-flex">
   <div class="picture">
-    <img class="listing-img"
+    {% if listing.picture %}
+      <img class="listing-img"
       src="{{ listing.picture }}"
       alt="{{ listing }}">
+    {% endif %}
   </div>
   <div class="main-info">
     <h2><strong>{{ listing }}</strong></h2>
@@ -57,7 +59,7 @@
     {% endif %}
   </div>
   
-  <div class="details">
+  <div class="details w-25">
     <h3>Details</h3>
     <ul class="list-group list-group-flush">
       <li class="list-group-item">Listed by {{ listing.author }}</li>
@@ -112,7 +114,7 @@
       {% csrf_token %}
   
       <input name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment ">
-      <button type="submit" class="btn btn-light">Comment</button>
+      <button type="submit" class="btn btn-light rounded-pill border">Comment</button>
     </form>
     {% endif %}
   
