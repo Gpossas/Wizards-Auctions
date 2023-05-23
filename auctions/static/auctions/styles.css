@@ -128,7 +128,7 @@ h2{
 .listings-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   grid-auto-rows: 240px;
 }
 
@@ -205,6 +205,31 @@ h2{
   }
 
   .listing-item-wide {
-      grid-column: span 2 / auto;
+      grid-column: span 1.6 / auto;
+  }
+}
+
+/* ==================== LISTING_PAGE ==================== */
+
+.listing-page-flex{
+  display: flex;
+  gap: 30px;
+  flex-direction: column;
+}
+.picture img{
+  border-radius: 20px;
+  max-width: 500px;
+}
+
+.bids{
+  max-width: 25vw;
+}
+/* .description{
+  grid-area: description;
+} */
+
+@media screen and (min-width: 600px) {
+  .listing-page-flex {
+    flex-direction: column;
   }
 }
