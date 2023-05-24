@@ -29,7 +29,7 @@
       <h3>${{ listing.bids.last|currency_format }}</h3>
       <p>
         {{ listing.bids.count }} bid(s) so far.
-        {% if user.id == listing.bids.last.user.id %} Your bid is the current bid {% endif %}
+        {% if user.id == listing.bids.last.user.id and listing.active %} Your bid is the current bid {% endif %}
       </p>
 
       {% if user.is_authenticated %}
@@ -113,7 +113,7 @@
     <form action="{% url 'comments' listing.id %}" method="post">
       {% csrf_token %}
   
-      <input name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment ">
+      <input name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment" autocomplete="off">
       <button type="submit" class="btn btn-light rounded-pill border">Comment</button>
     </form>
     {% endif %}

@@ -224,9 +224,10 @@ h2{
 .bids{
   max-width: 25vw;
 }
-/* .description{
-  grid-area: description;
-} */
+
+.btn-light{
+  margin-top: 7px;
+}
 
 @media screen and (min-width: 600px) {
   .listing-page-flex {
