@@ -72,9 +72,9 @@
       {% else %}
       <div class="watchlist">
           {% if in_watchlist %}
-          <button id="watchlist" data-id="{{ listing.id }}" name="watchlist" value="in_watchlist" class="btn btn-primary">Remove from watchlist</button>
+          <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="in_watchlist" class="btn btn-primary">Remove from watchlist</button>
           {% else %}
-          <button id="watchlist" data-id="{{ listing.id }}" name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
+          <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
           {% endif %}
       </div>
       {% endif %}

@@ -1,5 +1,5 @@
-function changeWatchlistState(id){
-    fetch(`/watchlist_state/${id}`, {
+function changeWatchlistState(url){
+    fetch(url, {
         method: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin', // Do not send CSRF token to another domain.  
@@ -9,10 +9,10 @@ function changeWatchlistState(id){
         if (response.ok){
             return response.json();
         } else{
-            const error = await response.json();
-            const flash = addFlashMessage('alert-danger', `${error['error']}`);
+            const error = await response.json().then(message => message['error']);
+            const flash = addFlashMessage('alert-danger', error);
             removeFlashMessage(flash);
-            throw new Error(`${error['error']}, status: ${response.status}`);
+            throw new Error(`Error: ${error}, status: ${response.status}`);
         }
     })
     .then(data => {
@@ -28,7 +28,7 @@ function changeWatchlistState(id){
         }
     })
     .catch(error =>{
-        console.log(`Error: ${error.message}`);
+        console.log(error.message);
     });
 }
 
@@ -44,7 +44,7 @@ function changeBidState(url){
             return response.json();
         } else{
             const error = await response.json().then(message => message['error']);
-            const flash = addFlashMessage('alert-danger', `${error}`);
+            const flash = addFlashMessage('alert-danger', error);
             removeFlashMessage(flash);
             bid.value = '';
             throw new Error(`Error: ${error}, status: ${response.status}`);
@@ -103,5 +103,5 @@ const watchlist = document.querySelector('#watchlist');
 const bidButton = document.querySelector('#bid_button');
 const bid = document.querySelector('#bid');
 const bidPrice = document.querySelector('#bid_price');
-watchlist.addEventListener('click', () => changeWatchlistState(watchlist.dataset.id));
+watchlist.addEventListener('click', () => changeWatchlistState(watchlist.dataset.action));
 bidButton.addEventListener('click', () => changeBidState(bidButton.dataset.action));
