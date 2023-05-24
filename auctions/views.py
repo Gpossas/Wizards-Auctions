@@ -1,13 +1,14 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import Http404
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.contrib import messages
 
-from .helpers import format_string_as_int, ListingNotActive, BidTooLow
+from .helpers import format_string_as_int, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
 
 #TODO: fazer uma pagina padrão pra trouxas(quem não ta logado) com listing normais e chatos
@@ -171,30 +172,45 @@ def watchlist(request):
     return render(request, "auctions/watchlist.html", {"watchlist":watchlist})
 
 @login_required
-def watchlist_form(request, listing_id):
+def watchlist_change_state(request, listing_id: int):
+    """
+    add or delete listing from watchlist, return JSON{action: 'removed' or 'added', status: 'error'}
+    show message of success with js and change button class
+    """
     if request.method == "POST":
-        user = get_object_or_404(User, pk=request.user.id)
-        listing = get_object_or_404(Listing, pk=listing_id)
-        
-        if request.POST["watchlist"]:
-            action = "Deleted from watchlist"
+        user = request.user
+        listing = get_object_or_404(Listing, pk=listing_id)                 
+        data = json.loads(request.body)
+        print(user,listing, data)
+
+        if data.get('watchlist'):
+            action = "delete"
             try:
                 delete = Watchlist.objects.get(user=user, listing=listing)
                 delete.delete()
-            except:
-                messages.error(request, "Can't delete from watchlist")
-                return redirect(reverse('listing_page', kwargs={'listing_id': listing_id}))
+            except Watchlist.DoesNotExist:
+                messages.error(request, "Cannot delete from watchlist: entry does not exist")
+                raise ObjectDoesNotExist("Watchlist entry does not exist")
+            except Exception as e:
+                messages.error(request, "An error occurred while deleting from watchlist")
+                raise e
         else:
-            action = "Added to watchlist"
+            action = "add"
             try:
+                if Watchlist.objects.filter(user=user, listing=listing): raise ObjectAlreadyInDatabase
                 add = Watchlist.objects.create(user=user, listing=listing) 
                 add.save()
-            except:
-                messages.error(request, "Can't add to watchlist")
-                return redirect(reverse('listing_page', kwargs={'listing_id': listing_id}))
-        
+            except ObjectAlreadyInDatabase:
+                raise ObjectAlreadyInDatabase("Watchlist entry already in database")
+            except Watchlist.DoesNotExist:
+                messages.error(request, "Cannot add to watchlist: entry does not exist")
+                raise ObjectDoesNotExist("Watchlist entry does not exist")
+            except Exception as e:
+                messages.error(request, "An error occurred while adding to watchlist")
+                raise e
+            
         messages.success(request, action)
-        return redirect(reverse('listing_page', kwargs={'listing_id': listing_id}))
+        return JsonResponse({'action': action})
     
 
 # =============== LOGIN =============== 

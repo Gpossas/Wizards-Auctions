@@ -3,17 +3,9 @@
 
 {% block body %}
 
-{% if messages %}
-  {% for message in messages %}
-    <div id="flash_message">
-      {% if message.tags == "success" %}
-        <p class="alert alert-success" role="alert">{{ message }}</p>
-      {% else %}
-        <p class="alert alert-danger" role="alert">{{ message }}</p>
-      {% endif %}
-    </div>
-  {% endfor %}
-{% endif %}
+<div class="flash_message">
+
+</div>
 
 <div class="listing-page-flex">
   <div class="picture">
@@ -83,15 +75,11 @@
       </div>
       {% else %}
       <div class="watchlist">
-        <form action="{% url 'watchlist_form' listing.id %}" method="post">
-          {% csrf_token %}
-
           {% if in_watchlist %}
-          <button name="watchlist" value="True" class="btn btn-primary">Remove from watchlist</button>
+          <button id="watchlist" data-id="{{ listing.id }}" name="watchlist" value="in_watchlist" class="btn btn-primary">Remove from watchlist</button>
           {% else %}
-          <button name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
+          <button id="watchlist" data-id="{{ listing.id }}" name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
           {% endif %}
-        </form>
       </div>
       {% endif %}
     {% endif %}

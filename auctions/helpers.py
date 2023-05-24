@@ -2,7 +2,8 @@ class ListingNotActive(Exception):
     pass
 class BidTooLow(Exception):
     pass
-
+class ObjectAlreadyInDatabase(Exception):
+    pass
 
 def trim_non_numeric_and_cast_int(string: str) -> int:
     """
