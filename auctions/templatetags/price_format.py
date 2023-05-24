@@ -26,7 +26,7 @@ def format_string_as_int(string: str) -> str:
         '$ 89.45' -> 8945\n
         '0000' -> 0\n
         '45bar64' -> 4564\n
-        'foo' -> raise ValueError
+        'foo' -> 0
     """
 
     num = ''
@@ -57,7 +57,7 @@ def put_comma_every_three_digits(num: str) -> str:
     formated_num = ''
     for i in range(digits - DECIMAL_PLACES - 1, -1, -1):
         if count % 3 == 0 and count != 0:
-            formated_num = ''.join(('.', formated_num))
+            formated_num = ''.join((',', formated_num))
         formated_num = ''.join((num[i], formated_num))
         count += 1
     return ''.join((formated_num, num[-DECIMAL_PLACES::]))

@@ -181,7 +181,6 @@ def watchlist_change_state(request, listing_id: int):
         user = request.user
         listing = get_object_or_404(Listing, pk=listing_id)                 
         data = json.loads(request.body)
-        print(user,listing, data)
 
         if data.get('watchlist'):
             action = "delete"
@@ -209,7 +208,6 @@ def watchlist_change_state(request, listing_id: int):
                 messages.error(request, "An error occurred while adding to watchlist")
                 raise e
             
-        messages.success(request, action)
         return JsonResponse({'action': action})
     
 
