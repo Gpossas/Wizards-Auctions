@@ -173,10 +173,6 @@ def watchlist(request):
 
 @login_required
 def watchlist_change_state(request, listing_id: int):
-    """
-    add or delete listing from watchlist, return JSON{action: 'removed' or 'added', status: 'error'}
-    show message of success with js and change button class
-    """
     if request.method == "POST":
         user = request.user
         listing = get_object_or_404(Listing, pk=listing_id)                 
@@ -185,28 +181,39 @@ def watchlist_change_state(request, listing_id: int):
         if data.get('watchlist'):
             action = "delete"
             try:
+                exception_flag = True
                 delete = Watchlist.objects.get(user=user, listing=listing)
                 delete.delete()
+                exception_flag = False
             except Watchlist.DoesNotExist:
-                messages.error(request, "Cannot delete from watchlist: entry does not exist")
+                message = "Cannot delete from watchlist: entry does not exist"
                 raise ObjectDoesNotExist("Watchlist entry does not exist")
             except Exception as e:
-                messages.error(request, "An error occurred while deleting from watchlist")
+                message = "An error occurred while deleting from watchlist"
                 raise e
+            finally:
+                if exception_flag:
+                    return JsonResponse({'error': message}, status=403)
         else:
             action = "add"
             try:
+                exception_flag = True
                 if Watchlist.objects.filter(user=user, listing=listing): raise ObjectAlreadyInDatabase
                 add = Watchlist.objects.create(user=user, listing=listing) 
                 add.save()
+                exception_flag = False
             except ObjectAlreadyInDatabase:
+                message = "Watchlist entry already in database"
                 raise ObjectAlreadyInDatabase("Watchlist entry already in database")
             except Watchlist.DoesNotExist:
-                messages.error(request, "Cannot add to watchlist: entry does not exist")
+                message = "Cannot add to watchlist: entry does not exist"
                 raise ObjectDoesNotExist("Watchlist entry does not exist")
             except Exception as e:
-                messages.error(request, "An error occurred while adding to watchlist")
+                message = "An error occurred while adding to watchlist"
                 raise e
+            finally:
+                if exception_flag:
+                    return JsonResponse({'error': message}, status=403)
             
         return JsonResponse({'action': action})
     

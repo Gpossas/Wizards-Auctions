@@ -5,7 +5,16 @@ function changeWatchlistState(id){
         mode: 'same-origin', // Do not send CSRF token to another domain.  
         body: JSON.stringify({ watchlist: watchlist.value }),
     })
-    .then(response => response.json())
+    .then(async response => {
+        if (response.ok){
+            return response.json();
+        } else{
+            const error = await response.json();
+            const flash = addFlashMessage('alert-danger', `${error['error']}`);
+            removeFlashMessage(flash);
+            throw new Error(`${error['error']}, status: ${response.status}`);
+        }
+    })
     .then(data => {
         if (data['action'] == 'add'){
             toggleButtonWatchlist('in_watchlist', 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
@@ -19,7 +28,7 @@ function changeWatchlistState(id){
         }
     })
     .catch(error =>{
-        console.log(error);
+        console.log(`Error: ${error.message}`);
     });
 }
 
