@@ -61,6 +61,45 @@ function changeBidState(url){
     });
 }
 
+function addComment(url){
+    fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        mode: "same-origin",
+        body: JSON.stringify({comment: comment.value})
+    })
+    .then(async response => {
+        if (response.ok){
+            return response.json();
+        } else{
+            const error = await response.json().then(message => message['error']);
+            const message = document.createElement('p');
+            message.innerText = error;
+            message.style.color = 'red';
+            comment.parentElement.prepend(message);
+            removeFlashMessage(message, 2000);
+            comment.value = '';
+            throw new Error(error);
+        }
+    })
+    .then(data => {
+        const newComment = htmlToElement(
+            `<li class="list-group-item">
+                <div class="comment-header">
+                    <strong>${data['user']}</strong>
+                    <span>${data['date']}</span>
+                </div>
+                <p>${data['text']}</p>
+            </li>`
+        );
+        commentSection.prepend(newComment);
+        comment.value = '';
+    })
+    .catch(error => {
+        console.log(error.message)
+    });
+}
+
 function addFlashMessage(class_name, text){
     const flash = document.createElement('p');
     flash.className = `alert ${class_name}`;
@@ -69,8 +108,8 @@ function addFlashMessage(class_name, text){
     return flash
 }
 
-function removeFlashMessage(flashMessage){
-    setTimeout(() => flashMessage.remove(), 3000);
+function removeFlashMessage(flashMessage, time=3000){
+    setTimeout(() => flashMessage.remove(), time);
 }
 
 function toggleButtonWatchlist(value, remove, add, text){
@@ -96,6 +135,14 @@ function getCookie(name) {
     return cookieValue;
 }
 
+function htmlToElement(html){
+    const template = document.createElement('template');
+    html = html.trim();
+    template.innerHTML = html;
+    console.log(template.content.firstChild);
+    return template.content.firstChild;
+}
+
 // https://docs.djangoproject.com/en/4.2/howto/csrf/
 const csrftoken = getCookie('csrftoken');
 const flashMessage = document.querySelector('.flash_message');
@@ -103,5 +150,9 @@ const watchlist = document.querySelector('#watchlist');
 const bidButton = document.querySelector('#bid_button');
 const bid = document.querySelector('#bid');
 const bidPrice = document.querySelector('#bid_price');
+const commentSection = document.querySelector('#comment_section');
+const commentButton = document.querySelector('#comment_button');
+const comment = document.querySelector('#comment');
 watchlist.addEventListener('click', () => changeWatchlistState(watchlist.dataset.action));
 bidButton.addEventListener('click', () => changeBidState(bidButton.dataset.action));
+commentButton.addEventListener('click', () => addComment(commentButton.dataset.action));

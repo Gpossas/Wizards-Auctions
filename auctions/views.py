@@ -7,6 +7,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.contrib import messages
+from datetime import datetime
+from django.utils import dateformat
 
 from .helpers import format_string_as_int, format_to_currency, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
@@ -75,7 +77,7 @@ def listing_page(request, listing_id):
     return render(request, "auctions/listing_page.html", {
         "listing":listing,
         "in_watchlist": watchlist,
-        "comments": Comments.objects.filter(listing=listing)
+        "comments": Comments.objects.filter(listing=listing).order_by("-date")
     })
 
 @login_required
@@ -104,19 +106,23 @@ def listing_state(request, listing_id):
 @login_required
 def comments(request, listing_id):
     if request.method == "POST":
-        if not request.POST["comment"] or request.POST["comment"].isspace():
-            messages.error(request, "You can't leave blank comments")
-            return redirect(reverse('listing_page', args=[listing_id]))
+        data = json.loads(request.body)
+        if not data["comment"] or data["comment"].isspace():
+            return JsonResponse({'error': "You can't leave blank comments"}, status=403)
 
         comment = Comments.objects.create(
-            text = request.POST["comment"],
+            text = data["comment"],
             user = request.user,
             listing = Listing.objects.get(pk=listing_id)
         )
         comment.save()
 
-        messages.success(request, "Added comment")
-        return redirect(reverse('listing_page', args=[listing_id]))
+        # messages.success(request, "Added comment")
+        return JsonResponse({
+            'text': comment.text,
+            'user': comment.user.username,
+            'date': dateformat.format(datetime.now(), 'N j, Y, P'),
+        })
 
 # =============== BID ===============
 @login_required
@@ -147,7 +153,6 @@ def place_bid(request, last_bid_id):
         except BidTooLow:
             message = "Your bid should be greater than the last bid"
         except Exception as e:
-            print(e)
             message = "Can't place bid"
         finally:
             if exception_flag:

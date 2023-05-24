@@ -80,28 +80,27 @@
       {% endif %}
     {% endif %}
   </div>
-
   
   <div class="comments mb-3">
     <p><strong>{{ comments.count }} Comments</strong></p>
-    <ul class="list-group list-group-flush">
+    {% if user.is_authenticated and listing.active %}
+      <div class="send-comment">
+        <input id="comment" name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment" autocomplete="off">
+        <button id="comment_button" data-action="{% url 'comments' listing.id %}" type="submit" class="btn btn-light rounded-pill border">Comment</button>
+      </div>
+    {% endif %}
+    
+    <ul id="comment_section" class="list-group list-group-flush">
       {% for comment in comments %}
-      <li class="list-group-item">
-        <div><strong>{{ comment.user.username }}</strong></div>
-        {{ comment }}
-      </li>
+        <li class="list-group-item">
+          <div class="comment-header">
+            <strong>{{ comment.user.username }}</strong>
+            <span>{{ comment.date }}</span>
+          </div>
+          <p>{{ comment }}</p>
+        </li>
       {% endfor %}
     </ul>
-  
-    {% if user.is_authenticated and listing.active %}
-    <form action="{% url 'comments' listing.id %}" method="post">
-      {% csrf_token %}
-  
-      <input name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment" autocomplete="off">
-      <button type="submit" class="btn btn-light rounded-pill border">Comment</button>
-    </form>
-    {% endif %}
-  
   </div>
 </div> <!-- container -->
 
