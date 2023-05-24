@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.contrib import messages
 
-from .helpers import format_string_as_int, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
+from .helpers import format_string_as_int, format_to_currency, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
 
 #TODO: fazer uma pagina padrão pra trouxas(quem não ta logado) com listing normais e chatos
@@ -124,33 +124,37 @@ def place_bid(request, last_bid_id):
     if request.method == "POST":
         try:
             exception_flag = True
+            data = json.loads(request.body)
             last_bid = Bid.objects.get(pk=last_bid_id)
-            bid = int(format_string_as_int(request.POST["bid"]))
+            bid = int(format_string_as_int(data['bid']))
             if not last_bid.listing.active: raise ListingNotActive
             if bid <= last_bid.price: raise BidTooLow
-            bid = Bid.objects.create(
+            new_bid = Bid.objects.create(
                 price = bid,
                 user = request.user,
                 listing = last_bid.listing
             )
-            bid.save()
+            new_bid.save()
             exception_flag = False
+        except json.JSONDecodeError:
+            message = "JSON error"
         except (Bid.DoesNotExist, Bid.MultipleObjectsReturned):
-            raise Http404
+            message = "Database query error"
         except ValueError:
-            messages.error(request, "Bid must be a number")
+            message = "Bid must be a number"
         except ListingNotActive: 
-            messages.error(request, "Auction is closed, listing no longer active")
+            message = "Auction is closed, listing no longer active"
         except BidTooLow:
-            messages.error(request, "Your bid should be greater than the last bid")
-        except:
-            messages.error(request, "Can't place bid")
+            message = "Your bid should be greater than the last bid"
+        except Exception as e:
+            print(e)
+            message = "Can't place bid"
         finally:
             if exception_flag:
-                return redirect(reverse('listing_page', args=[last_bid.listing.id]))
+                return JsonResponse({'error': message}, status=403)
            
-        messages.success(request, "Bid placed, you are ahead to get that item!")
-        return redirect(reverse('listing_page', args=[last_bid.listing.id]))         
+        message = "Bid placed, you are ahead to get that item!"
+        return JsonResponse({'bid': format_to_currency(bid), 'message': message})    
 
 
 # =============== CATEGORY =============== 

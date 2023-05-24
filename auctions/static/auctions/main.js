@@ -18,13 +18,13 @@ function changeWatchlistState(id){
     .then(data => {
         if (data['action'] == 'add'){
             toggleButtonWatchlist('in_watchlist', 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
-            const flash = addFlashMessage('alert-success', 'Added to')
-            removeFlashMessage(flash)
+            const flash = addFlashMessage('alert-success', 'Added to watchlist');
+            removeFlashMessage(flash);
         }
         else{
             toggleButtonWatchlist('', 'btn-primary', 'btn-outline-primary', 'Add to watchlist');
-            const flash = addFlashMessage('alert-danger', 'Deleted from')
-            removeFlashMessage(flash)
+            const flash = addFlashMessage('alert-danger', 'Deleted from watchlist');
+            removeFlashMessage(flash);
         }
     })
     .catch(error =>{
@@ -32,10 +32,39 @@ function changeWatchlistState(id){
     });
 }
 
+function changeBidState(url){
+    fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrftoken},
+        mode: 'same-origin', // Do not send CSRF token to another domain.  
+        body: JSON.stringify({ bid: bid.value }),
+    })
+    .then(async response => {
+        if (response.ok){
+            return response.json();
+        } else{
+            const error = await response.json().then(message => message['error']);
+            const flash = addFlashMessage('alert-danger', `${error}`);
+            removeFlashMessage(flash);
+            bid.value = '';
+            throw new Error(`Error: ${error}, status: ${response.status}`);
+        }
+    })
+    .then(data => {
+        const flash = addFlashMessage('alert-success', data['message']);
+        removeFlashMessage(flash);
+        bid.value = '';
+        bidPrice.innerText = `$ ${data['bid']}`;
+    })
+    .catch(error =>{
+        console.log(error.message);
+    });
+}
+
 function addFlashMessage(class_name, text){
     const flash = document.createElement('p');
     flash.className = `alert ${class_name}`;
-    flash.innerText = `${text} watchlist`;
+    flash.innerText = text;
     flashMessage.appendChild(flash);
     return flash
 }
@@ -69,6 +98,10 @@ function getCookie(name) {
 
 // https://docs.djangoproject.com/en/4.2/howto/csrf/
 const csrftoken = getCookie('csrftoken');
-const watchlist = document.querySelector('#watchlist');
 const flashMessage = document.querySelector('.flash_message');
+const watchlist = document.querySelector('#watchlist');
+const bidButton = document.querySelector('#bid_button');
+const bid = document.querySelector('#bid');
+const bidPrice = document.querySelector('#bid_price');
 watchlist.addEventListener('click', () => changeWatchlistState(watchlist.dataset.id));
+bidButton.addEventListener('click', () => changeBidState(bidButton.dataset.action));
