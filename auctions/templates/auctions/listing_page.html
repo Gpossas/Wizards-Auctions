@@ -4,7 +4,13 @@
 {% block body %}
 
 <div class="flash_message">
-
+  {% if messages %}
+    {% for message in messages %}
+      <div id="flash_message">
+        <p class="alert alert-success" role="alert">{{ message }}</p>
+      </div>
+    {% endfor %}
+  {% endif %}
 </div>
 
 <div class="listing-page-flex">
@@ -17,25 +23,27 @@
   </div>
   <div class="main-info">
     <h2><strong>{{ listing }}</strong></h2>
-    <div class="bids">
+    <div class="bid-section">
       <h3 id="bid_price">${{ listing.bids.last|currency_format }}</h3>
-      <p>
+      <p class="bid-text">
         {{ listing.bids.count }} bid(s) so far.
         {% if user.id == listing.bids.last.user.id and listing.active %} Your bid is the current bid {% endif %}
       </p>
 
       {% if user.is_authenticated %}
-        {% if listing.active %}
-          <div class="form-group">
-            <label for="price" class="form-label">Bid</label>
-            <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
-          </div>
-          <button id="bid_button" data-action="{% url 'place_bid' listing.bids.last.id %}" class="btn btn-primary">Place Bid</button>
-        {% else %}
-          <div class="alert alert-info" role="alert">
-            Listing no longer active{% if user.id == listing.bids.last.user.id %}, you won! {% endif %}
-          </div>
-        {% endif %}
+        <div class="bids">
+          {% if listing.active %}
+            <div class="bid-input form-group">
+              <label for="price" class="form-label">Bid</label>
+              <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
+              <button id="bid_button" data-action="{% url 'place_bid' listing.bids.last.id %}" class="btn btn-primary mt-3">Place Bid</button>
+            </div>
+          {% else %}
+            <div class="alert alert-info" role="alert">
+              Listing no longer active{% if user.id == listing.bids.last.user.id %}, you won! {% endif %}
+            </div>
+          {% endif %}
+        </div>
       {% endif %}
     </div>
   </div>
@@ -63,9 +71,9 @@
           {% csrf_token %}
 
           {% if listing.active %}
-          <button name="active" value="True" class="btn btn-outline-danger">Close auction</button>
+          <button id="auction_state" name="change_state_to" value="close_auction" class="btn btn-outline-danger">Pause auction</button>
           {% else %}
-          <button name="active" value="" class="btn btn-outline-secondary">Reopen auction</button>
+          <button id="auction_state"  name="change_state_to" value="open_auction" class="btn btn-outline-secondary">Resume auction</button>
           {% endif %}
         </form>
       </div>

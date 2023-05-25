@@ -80,26 +80,49 @@ def listing_page(request, listing_id):
         "comments": Comments.objects.filter(listing=listing).order_by("-date")
     })
 
+
 @login_required
 def listing_state(request, listing_id):
     """
     open or close an auction by changing listing.active
     """
-    
     if request.method == "POST":
         listing = get_object_or_404(Listing, pk=listing_id)
-        if request.user != listing.author:
+        if request.user != listing.author: 
             raise PermissionDenied
-
-        if request.POST["active"]:
-            listing.active = False
-            listing.save()
-            messages.success(request, "Auction closed")
-        else:
+        
+        if request.POST['change_state_to'] == 'open_auction':
             listing.active = True
             listing.save()
-            messages.success(request, "Auction reopen")
+        else:
+            listing.active = False
+            listing.save()
         return redirect(reverse('listing_page', args=[listing_id]))
+    # api
+    # if request.method == "POST":
+    #     try:
+    #         listing = Listing.objects.get(pk=listing_id)
+    #         if request.user != listing.author: raise PermissionDenied
+    #     except Listing.DoesNotExist:
+    #         return JsonResponse({'error': 'Request to non existent listing'}, status=404)
+    #     except PermissionDenied:
+    #         return JsonResponse({'error': 'Only the author can change the auction state'}, status=403)
+        
+    #     data = json.loads(request.body)
+    #     if data.get('change_state_to') == 'open_auction':
+    #         listing.active = True
+    #         listing.save()
+    #         message = "Auction resumed"
+    #     else:
+    #         listing.active = False
+    #         listing.save()
+    #         message = "Auction paused"
+    #     return JsonResponse({
+    #         'message': message,
+    #         'auction_is_active': listing.active,
+    #         'bid_url': reverse('listing_state', args=[listing.id]),
+    #         'is_winner': request.user.id == listing.bids.last().user.id
+    #     })
 
 
 # =============== COMMENTS ===============
@@ -123,6 +146,7 @@ def comments(request, listing_id):
             'user': comment.user.username,
             'date': dateformat.format(datetime.now(), 'N j, Y, P'),
         })
+
 
 # =============== BID ===============
 @login_required
@@ -167,6 +191,7 @@ def categories(request):
     categories = Category.objects.all()
     return render(request, "auctions/categories.html", {"categories":categories})
 
+
 def category(request, category_id):
     category = get_object_or_404(Category, pk=category_id)
     listings = category.listings.all()
@@ -179,6 +204,7 @@ def watchlist(request):
     user = get_object_or_404(User, pk=request.user.id)
     watchlist = Watchlist.objects.filter(user=user)
     return render(request, "auctions/watchlist.html", {"watchlist":watchlist})
+
 
 @login_required
 def watchlist_change_state(request, listing_id: int):
@@ -245,6 +271,7 @@ def login_view(request):
             return redirect(request.META.get('HTTP_REFERER'))
     else:
         return render(request, "auctions/login.html")
+
 
 @login_required
 def logout_view(request):

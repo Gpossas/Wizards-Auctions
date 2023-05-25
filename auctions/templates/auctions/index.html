@@ -2,33 +2,33 @@
 {% load price_format %}
 
 {% block body %}
-{% if messages %}
-{% for message in messages %}
-<div id="flash_message">
-  <p class="alert alert-success" role="alert">{{ message }}</p>
-</div>
-{% endfor %}
-{% endif %}
-
-<h2>Active Listings</h2>
-
-<div class="listings-grid">
-  {% for listing in listings %}
-  <div class="listing-item listing-item-wide" style="background-image:url('{{ listing.picture }}')">
-    <a href="{% url 'listing_page' listing.id %}">
-      <div class="info">
-        <h1 id="title"><strong>{{ listing.title|capfirst }}</strong></h1>
-        <h2 id="price"><span>$</span> <strong>{{ listing.bids.last|currency_format }}</strong></h2>
-        {% if listing.description %}
-          <p id="description">{{ listing.description|capfirst|truncatechars:62 }}</p>
-        {% endif %}
-        <p id="date">Created {{ listing.date }}</p>
+  {% if messages %}
+    {% for message in messages %}
+      <div id="flash_message">
+        <p class="alert alert-success" role="alert">{{ message }}</p>
       </div>
-    </a>
+    {% endfor %}
+  {% endif %}
+
+  <h2>Active Listings</h2>
+
+  <div class="listings-grid">
+    {% for listing in listings %}
+    <div class="listing-item listing-item-wide" style="background-image:url('{{ listing.picture }}')">
+      <a href="{% url 'listing_page' listing.id %}">
+        <div class="info">
+          <h1 id="title"><strong>{{ listing.title|capfirst }}</strong></h1>
+          <h2 id="price"><span>$</span> <strong>{{ listing.bids.last|currency_format }}</strong></h2>
+          {% if listing.description %}
+            <p id="description">{{ listing.description|capfirst|truncatechars:62 }}</p>
+          {% endif %}
+          <p id="date">Created {{ listing.date }}</p>
+        </div>
+      </a>
+    </div>
+    {% empty %}
+    <p>Looks like there's no active listing</p>
+    {% endfor %}
   </div>
-  {% empty %}
-  <p>Looks like there's no active listing</p>
-  {% endfor %}
-</div>
 
 {% endblock %}

@@ -16,13 +16,13 @@ function changeWatchlistState(url){
         }
     })
     .then(data => {
-        if (data['action'] == 'add'){
-            toggleButtonWatchlist('in_watchlist', 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
+        if (data['action'] === 'add'){
+            toggleButtonStyle(watchlistButton, 'in_watchlist', 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
             const flash = addFlashMessage('alert-success', 'Added to watchlist');
             removeFlashMessage(flash);
         }
         else{
-            toggleButtonWatchlist('', 'btn-primary', 'btn-outline-primary', 'Add to watchlist');
+            toggleButtonStyle(watchlistButton, '', 'btn-primary', 'btn-outline-primary', 'Add to watchlist');
             const flash = addFlashMessage('alert-danger', 'Deleted from watchlist');
             removeFlashMessage(flash);
         }
@@ -100,6 +100,65 @@ function addComment(url){
     });
 }
 
+// function changeAuctionState(url){
+//     fetch(url, {
+//         method: 'POST',
+//         headers: {'X-CSRFToken': csrftoken},
+//         mode: 'same-origin',
+//         body: JSON.stringify({change_state_to: auctionButton.dataset.change_state_to}),
+//     })
+//     .then(async response => {
+//         if (response.ok){
+//             return response.json();
+//         } else{
+//             const error = await response.json().then(message => message['error']);
+//             const flash = addFlashMessage('alert-danger', error);
+//             removeFlashMessage(flash);
+//             throw new Error(`Error: ${error}, status ${response.status}`);
+//         }
+//     })
+//     .then(data => {
+//         console.log(data);
+//         if (data['auction_is_active']){
+//             const flash = addFlashMessage('alert-success', data['message']);
+//             removeFlashMessage(flash);
+
+//             toggleButtonStyle(auctionButton, '', 'btn-outline-secondary', 'btn-outline-danger', 'Pause auction');
+            
+//             const bid_input = htmlToElement(`
+//                 <div class="bid-input form-group">
+//                     <label for="price" class="form-label">Bid</label>
+//                     <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
+//                     <button id="bid_button" data-action="${data['bid_url']}" class="btn btn-primary mt-3">Place Bid</button>
+//                 </div>
+//             `);
+//             let bidButton = document.querySelector('#bid_button');
+//             auctionButton.dataset.change_state_to = "close_auction";
+//             bid_div.removeChild(bid_div.children[0])
+//             bid_div.appendChild(bid_input)     
+//         } else{
+//             const flash = addFlashMessage('alert-danger', data['message']);
+//             removeFlashMessage(flash);
+            
+//             toggleButtonStyle(auctionButton, '', 'btn-outline-danger', 'btn-outline-secondary', 'Resume auction');
+
+//             const alert_text = data['is_winner'] ? 'Listing no longer active, you won!' : 'Listing no longer active';
+//             const bid_closed_alert = htmlToElement(`
+//                 <div class="alert alert-info" role="alert">
+//                 ${alert_text}
+//                 </div>
+//             `);
+//             auctionButton.dataset.change_state_to = "open_auction";
+//             bid_div.removeChild(bid_div.children[0])
+//             bid_div.appendChild(bid_closed_alert)
+//             bid_text.innerText.replace('Your bid is the current bid', '');
+//         }
+//     })
+//     .catch(error => {
+//         console.log(error);
+//     });
+// }
+
 function addFlashMessage(class_name, text){
     const flash = document.createElement('p');
     flash.className = `alert ${class_name}`;
@@ -112,11 +171,11 @@ function removeFlashMessage(flashMessage, time=3000){
     setTimeout(() => flashMessage.remove(), time);
 }
 
-function toggleButtonWatchlist(value, remove, add, text){
-    watchlist.value = value;
-    watchlist.classList.remove(remove);
-    watchlist.classList.add(add);
-    watchlist.innerHTML = text;
+function toggleButtonStyle(element, value, remove, add, text){
+    element.value = value;
+    element.classList.remove(remove);
+    element.classList.add(add);
+    element.innerHTML = text;
 }
 
 function getCookie(name) {
@@ -139,20 +198,23 @@ function htmlToElement(html){
     const template = document.createElement('template');
     html = html.trim();
     template.innerHTML = html;
-    console.log(template.content.firstChild);
     return template.content.firstChild;
-}
+} 
 
 // https://docs.djangoproject.com/en/4.2/howto/csrf/
 const csrftoken = getCookie('csrftoken');
 const flashMessage = document.querySelector('.flash_message');
-const watchlist = document.querySelector('#watchlist');
-const bidButton = document.querySelector('#bid_button');
+const watchlistButton = document.querySelector('#watchlist');
+let bidButton = document.querySelector('#bid_button');
 const bid = document.querySelector('#bid');
 const bidPrice = document.querySelector('#bid_price');
+const bid_div = document.querySelector('.bids');
+const bid_text = document.querySelector('.bid-text');
 const commentSection = document.querySelector('#comment_section');
-const commentButton = document.querySelector('#comment_button');
+let commentButton = document.querySelector('#comment_button');
 const comment = document.querySelector('#comment');
-watchlist.addEventListener('click', () => changeWatchlistState(watchlist.dataset.action));
-bidButton.addEventListener('click', () => changeBidState(bidButton.dataset.action));
-commentButton.addEventListener('click', () => addComment(commentButton.dataset.action));
+// let auctionButton = document.querySelector('#auction_state');
+if (watchlistButton) watchlistButton.addEventListener('click', () => changeWatchlistState(watchlistButton.dataset.action));
+if (bidButton) bidButton.addEventListener('click', () => changeBidState(bidButton.dataset.action));
+if (commentButton) commentButton.addEventListener('click', () => addComment(commentButton.dataset.action));
+// if (auctionButton) auctionButton.addEventListener('click', () => changeAuctionState(auctionButton.dataset.action));
