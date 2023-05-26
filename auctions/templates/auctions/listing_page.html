@@ -38,7 +38,7 @@
                 <div class="bid-input form-group">
                   <label for="price" class="form-label">Bid</label>
                   <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
-                  <button id="bid_button" data-action="{% url 'place_bid' listing.bids.last.id %}" class="btn btn-success mt-3">Place Bid</button>
+                  <button id="bid_button" data-action="{% url 'place_bid' %}" class="btn btn-success mt-3">Place Bid</button>
                 </div>
               {% else %}
                 <div class="alert alert-info" role="alert">
