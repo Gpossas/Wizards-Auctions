@@ -115,7 +115,7 @@ h2{
   font-size: 2.5rem;
 }
 
-/* LIST GRID */
+/* ================== LIST GRID ================== */
 .listings-grid {
   margin-top: 20px;
   display: grid;
@@ -125,6 +125,7 @@ h2{
 }
 
 .listing-item {
+  overflow: hidden;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -199,6 +200,11 @@ h2{
   .listing-item-wide {
       grid-column: span 1.6 / auto;
   }
+
+  .listing-item-small {
+    grid-row: span 4 / auto;
+    grid-column: span 4 / auto;
+  }
 }
 
 /* ==================== LISTING PAGE ==================== */
@@ -252,4 +258,20 @@ h2{
   .listing-page-flex {
     flex-direction: column;
   }
+}
+
+/* ============= watchlist ============= */
+
+.watchlist-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 200px);
+  grid-template-rows: repeat(4, 200px);
+  gap: 20px;
+}
+
+.watchlist-grid a {
+  color:#fff;
+}
+a:hover {
+  color:#d7d7d7;
 }
