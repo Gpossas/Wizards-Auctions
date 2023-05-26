@@ -3,7 +3,7 @@ function changeWatchlistState(url){
         method: 'POST',
         headers: {'X-CSRFToken': csrftoken},
         mode: 'same-origin', // Do not send CSRF token to another domain.  
-        body: JSON.stringify({ watchlist: watchlist.value }),
+        body: JSON.stringify({ new_state: watchlist.dataset.new_state }),
     })
     .then(async response => {
         if (response.ok){
@@ -16,13 +16,13 @@ function changeWatchlistState(url){
         }
     })
     .then(data => {
-        if (data['action'] === 'add'){
-            toggleButtonStyle(watchlistButton, 'in_watchlist', 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
+        if (data['state'] === 'add'){
+            toggleButtonStyle(watchlistButton, ['new_state', 'remove_watchlist'], 'btn-outline-primary', 'btn-primary', 'Remove from watchlist');
             const flash = addFlashMessage('alert-success', 'Added to watchlist');
             removeFlashMessage(flash);
         }
         else{
-            toggleButtonStyle(watchlistButton, '', 'btn-primary', 'btn-outline-primary', 'Add to watchlist');
+            toggleButtonStyle(watchlistButton, ['new_state', 'in_watchlist'], 'btn-primary', 'btn-outline-primary', 'Add to watchlist');
             const flash = addFlashMessage('alert-danger', 'Deleted from watchlist');
             removeFlashMessage(flash);
         }
@@ -171,8 +171,8 @@ function removeFlashMessage(flashMessage, time=3000){
     setTimeout(() => flashMessage.remove(), time);
 }
 
-function toggleButtonStyle(element, value, remove, add, text){
-    element.value = value;
+function toggleButtonStyle(element, [data_set, value], remove, add, text){
+    element.dataset[data_set] = value;
     element.classList.remove(remove);
     element.classList.add(add);
     element.innerHTML = text;

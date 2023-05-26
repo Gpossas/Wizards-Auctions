@@ -213,23 +213,7 @@ def watchlist_change_state(request, listing_id: int):
         listing = get_object_or_404(Listing, pk=listing_id)                 
         data = json.loads(request.body)
 
-        if data.get('watchlist'):
-            action = "delete"
-            try:
-                exception_flag = True
-                delete = Watchlist.objects.get(user=user, listing=listing)
-                delete.delete()
-                exception_flag = False
-            except Watchlist.DoesNotExist:
-                message = "Cannot delete from watchlist: entry does not exist"
-                raise ObjectDoesNotExist("Watchlist entry does not exist")
-            except Exception as e:
-                message = "An error occurred while deleting from watchlist"
-                raise e
-            finally:
-                if exception_flag:
-                    return JsonResponse({'error': message}, status=403)
-        else:
+        if data.get('new_state') == 'in_watchlist':
             action = "add"
             try:
                 exception_flag = True
@@ -249,8 +233,24 @@ def watchlist_change_state(request, listing_id: int):
             finally:
                 if exception_flag:
                     return JsonResponse({'error': message}, status=403)
+        else:
+            action = "delete"
+            try:
+                exception_flag = True
+                delete = Watchlist.objects.get(user=user, listing=listing)
+                delete.delete()
+                exception_flag = False
+            except Watchlist.DoesNotExist:
+                message = "Cannot delete from watchlist: entry does not exist"
+                raise ObjectDoesNotExist("Watchlist entry does not exist")
+            except Exception as e:
+                message = "An error occurred while deleting from watchlist"
+                raise e
+            finally:
+                if exception_flag:
+                    return JsonResponse({'error': message}, status=403)
             
-        return JsonResponse({'action': action})
+        return JsonResponse({'state': action})
     
 
 # =============== LOGIN =============== 
