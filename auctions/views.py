@@ -157,7 +157,6 @@ def place_bid(request):
             data = json.loads(request.body)
             last_bid = Bid.objects.last()
             bid = int(format_string_as_int(data['bid']))
-            print(data['bid'], bid, last_bid, type(last_bid))
             if not last_bid.listing.active: raise ListingNotActive
             if bid <= last_bid.price: raise BidTooLow
             new_bid = Bid.objects.create(
