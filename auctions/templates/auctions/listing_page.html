@@ -13,103 +13,107 @@
   {% endif %}
 </div>
 
-<div class="listing-page-flex">
-  <div class="picture">
-    {% if listing.picture %}
-      <img class="listing-img"
-      src="{{ listing.picture }}"
-      alt="{{ listing }}">
-    {% endif %}
-  </div>
-  <div class="main-info">
-    <h2><strong>{{ listing }}</strong></h2>
-    <div class="bid-section">
-      <h3 id="bid_price">${{ listing.bids.last|currency_format }}</h3>
-      <p class="bid-text">
-        {{ listing.bids.count }} bid(s) so far.
-        {% if user.id == listing.bids.last.user.id and listing.active %} Your bid is the current bid {% endif %}
-      </p>
-
-      {% if user.is_authenticated %}
-        <div class="bids">
-          {% if listing.active %}
-            <div class="bid-input form-group">
-              <label for="price" class="form-label">Bid</label>
-              <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
-              <button id="bid_button" data-action="{% url 'place_bid' listing.bids.last.id %}" class="btn btn-primary mt-3">Place Bid</button>
-            </div>
-          {% else %}
-            <div class="alert alert-info" role="alert">
-              Listing no longer active{% if user.id == listing.bids.last.user.id %}, you won! {% endif %}
+<div class="container">
+  <div class="listing-page-flex">
+    <div class="main-info">
+      <div class="listing-img-container">
+        {% if listing.picture %}
+          <img class="listing-img"
+          src="{{ listing.picture }}"
+          alt="{{ listing }}">
+        {% endif %}
+      </div>
+      <div class="container-info">
+        <h2><strong>{{ listing }}</strong></h2>
+        <div class="bid-section">
+          <h3 id="bid_price">${{ listing.bids.last|currency_format }}</h3>
+          <p class="bid-text">
+            {{ listing.bids.count }} bid(s) so far.
+            {% if user.id == listing.bids.last.user.id and listing.active %} Your bid is the current bid {% endif %}
+          </p>
+  
+          {% if user.is_authenticated %}
+            <div class="bids">
+              {% if listing.active %}
+                <div class="bid-input form-group">
+                  <label for="price" class="form-label">Bid</label>
+                  <input id="bid" name="bid" required type="text" aria-label="Dollar amount" class="form-control" placeholder="$">
+                  <button id="bid_button" data-action="{% url 'place_bid' listing.bids.last.id %}" class="btn btn-primary mt-3">Place Bid</button>
+                </div>
+              {% else %}
+                <div class="alert alert-info" role="alert">
+                  Listing no longer active{% if user.id == listing.bids.last.user.id %}, you won! {% endif %}
+                </div>
+              {% endif %}
             </div>
           {% endif %}
         </div>
+      </div>
+    </div>
+  
+    <div class="description">
+      {% if listing.description %}
+        <h3>Descrição: </h3>
+        <p>{{ listing.description|capfirst }}</p>
       {% endif %}
     </div>
-  </div>
-
-  <div class="description">
-    {% if listing.description %}
-      <h3>Descrição: </h3>
-      <p>{{ listing.description|capfirst }}</p>
-    {% endif %}
-  </div>
-  
-  <div class="details w-25">
-    <h3>Details</h3>
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">Listed by {{ listing.author }}</li>
-      <li class="list-group-item">Category: {{ listing.category|default_if_none:"Not Listed" }}</li>
-    </ul>
-  </div>
-
-  <div class="config">
-    {% if user.is_authenticated %}
-      {% if user.id == listing.author.id %}
-      <div class="listing_state">
-        <form action="{% url 'listing_state' listing.id %}" method="post">
-          {% csrf_token %}
-
-          {% if listing.active %}
-          <button id="auction_state" name="change_state_to" value="close_auction" class="btn btn-outline-danger">Pause auction</button>
-          {% else %}
-          <button id="auction_state"  name="change_state_to" value="open_auction" class="btn btn-outline-secondary">Resume auction</button>
-          {% endif %}
-        </form>
-      </div>
-      {% else %}
-      <div class="watchlist">
-          {% if in_watchlist %}
-          <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="in_watchlist" class="btn btn-primary">Remove from watchlist</button>
-          {% else %}
-          <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
-          {% endif %}
-      </div>
-      {% endif %}
-    {% endif %}
-  </div>
-  
-  <div class="comments mb-3">
-    <p><strong>{{ comments.count }} Comments</strong></p>
-    {% if user.is_authenticated and listing.active %}
-      <div class="send-comment">
-        <input id="comment" name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment" autocomplete="off">
-        <button id="comment_button" data-action="{% url 'comments' listing.id %}" type="submit" class="btn btn-light rounded-pill border">Comment</button>
-      </div>
-    {% endif %}
     
-    <ul id="comment_section" class="list-group list-group-flush">
-      {% for comment in comments %}
-        <li class="list-group-item">
-          <div class="comment-header">
-            <strong>{{ comment.user.username }}</strong>
-            <span>{{ comment.date }}</span>
-          </div>
-          <p>{{ comment }}</p>
-        </li>
-      {% endfor %}
-    </ul>
-  </div>
+    <div class="details w-25">
+      <h3>Details</h3>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item">Listed by {{ listing.author }}</li>
+        <li class="list-group-item">Category: {{ listing.category|default_if_none:"Not Listed" }}</li>
+      </ul>
+    </div>
+  
+    <div class="config">
+      {% if user.is_authenticated %}
+        {% if user.id == listing.author.id %}
+        <div class="listing_state">
+          <form action="{% url 'listing_state' listing.id %}" method="post">
+            {% csrf_token %}
+  
+            {% if listing.active %}
+            <button id="auction_state" name="change_state_to" value="close_auction" class="btn btn-outline-danger">Pause auction</button>
+            {% else %}
+            <button id="auction_state"  name="change_state_to" value="open_auction" class="btn btn-outline-secondary">Resume auction</button>
+            {% endif %}
+          </form>
+        </div>
+        {% else %}
+        <div class="watchlist">
+            {% if in_watchlist %}
+            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="in_watchlist" class="btn btn-primary">Remove from watchlist</button>
+            {% else %}
+            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" name="watchlist" value="" class="btn btn-outline-primary">Add to watchlist</button>
+            {% endif %}
+        </div>
+        {% endif %}
+      {% endif %}
+    </div>
+    
+    <div class="comments mb-3">
+      <p><strong>{{ comments.count }} Comments</strong></p>
+      {% if user.is_authenticated and listing.active %}
+        <div class="send-comment">
+          <input id="comment" name="comment" type="text" class="form-control" placeholder="Add a comment..." aria-label="add comment" autocomplete="off">
+          <button id="comment_button" data-action="{% url 'comments' listing.id %}" type="submit" class="btn btn-light rounded-pill border">Comment</button>
+        </div>
+      {% endif %}
+      
+      <ul id="comment_section" class="list-group list-group-flush">
+        {% for comment in comments %}
+          <li class="list-group-item">
+            <div class="comment-header">
+              <strong>{{ comment.user.username }}</strong>
+              <span>{{ comment.date }}</span>
+            </div>
+            <p>{{ comment }}</p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div> 
 </div> <!-- container -->
 
 

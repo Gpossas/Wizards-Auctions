@@ -211,18 +211,35 @@ h2{
 
 /* ==================== LISTING_PAGE ==================== */
 
+.main-info{
+  display: flex;
+  gap: 20px;
+  justify-content: left;
+}
+
+.container{
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.container-info{
+  margin: 0;
+}
+
 .listing-page-flex{
+  width: 80vw;
   display: flex;
   gap: 30px;
   flex-direction: column;
 }
-.picture img{
+.listing-img{
   border-radius: 20px;
-  max-width: 500px;
-}
-
-.bid-section{
-  max-width: 25vw;
+  min-height: 300px;
+  max-height: 650px;
+  width: 550px;
+  width: 550px;
+  object-fit: cover;
 }
 
 .btn-light{
