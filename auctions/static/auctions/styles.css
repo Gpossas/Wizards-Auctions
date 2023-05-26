@@ -82,6 +82,9 @@ body {
 }
 
 /* CATEGORIES */
+.categories-container{
+  margin-top: 48px;
+}
 .list {
   margin-bottom: 0;
   width: 15%;
