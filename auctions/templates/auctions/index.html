@@ -17,8 +17,8 @@
     <div class="listing-item listing-item-wide" style="background-image:url('{{ listing.picture }}')">
       <a href="{% url 'listing_page' listing.id %}">
         <div class="info">
-          <h1 id="title"><strong>{{ listing.title|capfirst }}</strong></h1>
-          <h2 id="price"><span>$</span> <strong>{{ listing.bids.last|currency_format }}</strong></h2>
+          <h1 class="title"><strong>{{ listing.title|capfirst }}</strong></h1>
+          <h2 class="price"><span>$</span> <strong>{{ listing.bids.last|currency_format }}</strong></h2>
           {% if listing.description %}
             <p id="description">{{ listing.description|capfirst|truncatechars:62 }}</p>
           {% endif %}
