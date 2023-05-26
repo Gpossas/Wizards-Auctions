@@ -126,6 +126,7 @@ h2{
 
 /* LIST GRID */
 .listings-grid {
+  margin-top: 20px;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -138,7 +139,7 @@ h2{
   background-repeat: no-repeat;
   color: #fff;
   text-align: center;
-  border-radius: 20px;
+  border-radius: 17px;
   position: relative;
 }
 
@@ -153,7 +154,7 @@ h2{
 }
 
 .listing-item::before {
-  border-radius: 20px;
+  border-radius: 17px;
   content: "";
   position: absolute;
   top: 0;
