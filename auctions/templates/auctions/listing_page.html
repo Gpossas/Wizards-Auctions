@@ -22,6 +22,15 @@
           src="{{ listing.picture }}"
           alt="{{ listing }}">
         {% endif %}
+        {% if user.is_authenticated %}
+          <div class="watchlist">
+            {% if in_watchlist %}
+            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" data-new_state="remove_watchlist" class="btn btn-primary watchlist">Remove from watchlist</button>
+            {% else %}
+            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" data-new_state="in_watchlist" class="btn btn-outline-primary watchlist" >Add to watchlist</button>
+            {% endif %}
+          </div>
+        {% endif %}
       </div>
       <div class="container-info">
         <h2><strong>{{ listing }}</strong></h2>
@@ -67,8 +76,7 @@
     </div>
   
     <div class="config">
-      {% if user.is_authenticated %}
-        {% if user.id == listing.author.id %}
+      {% if user.is_authenticated and user.id == listing.author.id %}
         <div class="listing_state">
           <form action="{% url 'listing_state' listing.id %}" method="post">
             {% csrf_token %}
@@ -80,15 +88,6 @@
             {% endif %}
           </form>
         </div>
-        {% else %}
-        <div class="watchlist">
-            {% if in_watchlist %}
-            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" data-new_state="remove_watchlist" class="btn btn-primary">Remove from watchlist</button>
-            {% else %}
-            <button id="watchlist" data-action="{% url 'watchlist_change_state' listing.id %}" data-new_state="in_watchlist" class="btn btn-outline-primary">Add to watchlist</button>
-            {% endif %}
-        </div>
-        {% endif %}
       {% endif %}
     </div>
     

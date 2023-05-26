@@ -201,7 +201,7 @@ h2{
   }
 }
 
-/* ==================== LISTING_PAGE ==================== */
+/* ==================== LISTING PAGE ==================== */
 
 .main-info{
   display: flex;
@@ -232,6 +232,16 @@ h2{
   width: 550px;
   width: 550px;
   object-fit: cover;
+}
+.listing-img-container{
+  position: relative;
+}
+.watchlist{
+  position: absolute;
+  font-weight: bold;
+  bottom: 5px; 
+  right: 5px;
+  border-bottom-right-radius: 20px;
 }
 
 .btn-light{
