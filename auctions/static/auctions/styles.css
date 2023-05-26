@@ -11,13 +11,7 @@ body {
   text-decoration: none;
 }
 
-.form-wrapper {
-  width: 25%;
-  padding: 20px;
-  /* background-color: #ededed;
-  border: 1px solid #ccc; */
-  border-radius: 5px;
-}
+/* ====================== creating listing ====================== */
 
 .form-group {
   margin-bottom: 20px;
@@ -32,20 +26,17 @@ body {
 .form-control {
   width: 100%;
   padding: 5px;
-  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
 .submit-button {
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  background-color: #4CAF50;
+  padding: 8px;
+  background-color: hsl(145, 93%, 40%);
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
 }
 
 .header h1{
