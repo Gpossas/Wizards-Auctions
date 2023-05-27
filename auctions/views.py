@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.contrib import messages
 from datetime import datetime
 from django.utils import dateformat
+from django.db import transaction
 
 from .helpers import format_string_as_int, format_to_currency, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
@@ -38,22 +39,22 @@ def create_listing(request):
             # only put attributes with values, otherwise use default values from database
             listing_data = {attribute:value for attribute,value in listing_data.items() if value}
             
-            price = format_string_as_int(request.POST["price"])
-            listing = Listing.objects.create(**listing_data)
-            bid = Bid.objects.create(
-                price = price,
-                user = listing_data["author"],
-                listing = listing
-            )
-            listing.save()
-            bid.save()
+            # prevents the creation of only one of them if an exception is raised by undoing any changes made within it
+            with transaction.atomic():
+                price = format_string_as_int(request.POST["price"])
+                listing = Listing.objects.create(**listing_data)
+                bid = Bid.objects.create(
+                    price = price,
+                    user = listing_data["author"],
+                    listing = listing
+                )
             exception_flag = False
         except Category.DoesNotExist:
             messages.error(request, "Select one of the listed categories")
         except ValueError:
             messages.error(request, "Price must be numeric")            
-        except:
-            messages.error(request, "Can't create listing")
+        except Exception as e:
+            messages.error(request, "Can't create listing, maybe price is too high")
         finally:
             if exception_flag:
                 return redirect(reverse('create_listing'))
