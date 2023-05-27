@@ -2,7 +2,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -13,7 +13,6 @@ from django.utils import dateformat
 from .helpers import format_string_as_int, format_to_currency, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
 
-#TODO: fazer uma pagina padrão pra trouxas(quem não ta logado) com listing normais e chatos
 
 def index(request):
     listings = Listing.objects.all()
@@ -300,7 +299,7 @@ def register(request):
             return redirect(request.META.get('HTTP_REFERER'))
         
         login(request, user)
-        messages.success(request, "these listings are cooler ;)")
+        messages.success(request, ";)")
         return redirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
