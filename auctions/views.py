@@ -10,6 +10,7 @@ from django.contrib import messages
 from datetime import datetime
 from django.utils import dateformat
 from django.db import transaction
+from django.core.files.storage import default_storage
 
 from .helpers import format_string_as_int, format_to_currency, ListingNotActive, BidTooLow, ObjectAlreadyInDatabase
 from .models import User, Listing, Category, Watchlist, Bid, Comments
@@ -29,11 +30,17 @@ def create_listing(request):
         try:
             exception_flag = True
             category = Category.objects.get(pk=request.POST["category"]) if request.POST["category"] != '' else None
+
+            image = request.FILES["picture"]
+            filename = default_storage.get_available_name(image.name)
+            path = default_storage.save(filename, image)
+            relative_path = default_storage.url(path)
+
             listing_data = {
                 'title': request.POST["title"],
                 'author': request.user,
                 'description': request.POST["description"],
-                'picture': request.POST["picture"],
+                'picture': relative_path,
                 'category': category
             }
             # only put attributes with values, otherwise use default values from database
@@ -54,6 +61,7 @@ def create_listing(request):
         except ValueError:
             messages.error(request, "Price must be numeric")            
         except Exception as e:
+            print(e)
             messages.error(request, "Can't create listing, maybe price is too high")
         finally:
             if exception_flag:

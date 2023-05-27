@@ -125,3 +125,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/auctions/ai-images/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/auctions')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'auctions/static/auctions/ai-images')

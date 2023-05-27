@@ -12,7 +12,7 @@ class Listing(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey('User', on_delete=models.CASCADE, related_name='author_listings') 
     description = models.TextField(blank=True)
-    picture = models.TextField(blank=True)
+    picture = models.ImageField(blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='listings', blank=True, null=True)
     active = models.BooleanField(default=True)
     def __str__(self) -> str:

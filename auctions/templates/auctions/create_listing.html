@@ -15,7 +15,7 @@
     <div>
       <h2>Create listing</h2>
       <div class="form-wrapper">
-        <form action="{% url 'create_listing' %}" method="post">
+        <form action="{% url 'create_listing' %}" method="post" enctype="multipart/form-data">
           {% csrf_token %}
 
           <div class="form-group">
@@ -30,7 +30,7 @@
 
           <div class="form-group">
             <label for="picture" class="form-label">Picture URL</label>
-            <input name="picture" type="text" class="form-control" autocomplete="off">
+            <input name="picture" type="file" class="form-control" autocomplete="off">
           </div>
 
           <div class="form-group">
