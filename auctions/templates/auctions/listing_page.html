@@ -1,5 +1,6 @@
 {% extends "auctions/layout.html" %}
 {% load price_format %}
+{% load static %}
 
 {% block body %}
 
@@ -19,7 +20,7 @@
       <div class="listing-img-container">
         {% if listing.picture %}
           <img class="listing-img"
-          src="{{ listing.picture }}"
+          src="{% static listing.picture %}"
           alt="{{ listing }}">
         {% endif %}
         {% if user.is_authenticated %}

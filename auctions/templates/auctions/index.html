@@ -1,5 +1,6 @@
 {% extends "auctions/layout.html" %}
 {% load price_format %}
+{% load static %}
 
 {% block body %}
   {% if messages %}
@@ -14,7 +15,7 @@
 
   <div class="listings-grid">
     {% for listing in listings %}
-    <div class="listing-item listing-item-wide" style="background-image:url('{{ listing.picture }}')">
+    <div class="listing-item listing-item-wide" style="background-image:url('{% static listing.picture %}')">
       <a href="{% url 'listing_page' listing.id %}">
         <div class="info">
           <h1 class="title"><strong>{{ listing.title|capfirst }}</strong></h1>
