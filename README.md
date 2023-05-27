@@ -1,4 +1,4 @@
-# Hogwarts-Auctions
+# Wizard-Auctions
 This project is an eBay-like e-commerce auction site that will allow WIZARDS to post auction listings, place bids on listings, comment on those listings, and add listings to a “watchlist.”
 It's a fullstack project that I took inspiration from CS50W by Harvard to learn django, Ajax, Database modeling. 
 OBS: Unit tests paused by now:
