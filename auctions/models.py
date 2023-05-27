@@ -49,6 +49,7 @@ class Comments(models.Model):
     text = models.TextField()
     user = models.ForeignKey('User', on_delete=models.CASCADE, related_name='comments')
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE, related_name='comments')
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return f"{self.text}"
     def is_blank(self):

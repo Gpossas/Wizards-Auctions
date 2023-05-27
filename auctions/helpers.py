@@ -2,26 +2,8 @@ class ListingNotActive(Exception):
     pass
 class BidTooLow(Exception):
     pass
-
-
-def trim_non_numeric_and_cast_int(string: str) -> int:
-    """
-    remove non-numeric characters and cast string to int value. A ValueError is raised if string is entirely non-numeric\n
-    Examples:\n
-        '$ 89.45' -> 8945\n
-        '0000' -> 0\n
-        '45bar64' -> 4564\n
-        'foo' -> raise ValueError
-    """
-
-    num = ''
-    for char in string:
-        if '0' <= char <= '9': 
-            num = ''.join((num, char))
-    if not num: 
-        raise ValueError('argument entirely non-numeric')
-    return int(num) 
-
+class ObjectAlreadyInDatabase(Exception):
+    pass
 
 def format_to_currency(num: str | int) -> str:
     """

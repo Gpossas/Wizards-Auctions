@@ -1,15 +1,26 @@
 {% extends "auctions/layout.html" %}
+{% load price_format %}
+{% load static %}
 
 {% block body %}
-  <h2>Watchlist</h2>
 
-  <div class="list">
-    <ul class="list-group list-group-flush">
-      {% for listing in watchlist %}
-        <a href="{% url 'listing_page' listing.listing.id %}" class="list-group-item" ><li>{{ listing.listing }}</li></a>
-      {% empty %}
-        <p>Your watchlist is empty, add your favorites products</p>
-      {% endfor %}
-    </ul>
+<div class="container">
+  <div>
+    <h2>Watchlist</h2>
+    <div class="watchlist-grid">
+        {% for listing in watchlist %}
+        <div class="listing-item" style="background-image:url('{% static listing.listing.picture %}')">
+          <a href="{% url 'listing_page' listing.listing.id %}">
+            <div class="info">
+              <h1 class="title"><strong>{{ listing.listing.title|capfirst }}</strong></h1>
+              <h2 class="price"><span>$</span> <strong>{{ listing.listing.bids.last|currency_format }}</strong></h2>
+            </div>
+          </a>
+        </div>
+        {% empty %}
+        <p>Looks like there's no active listing</p>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 {% endblock %}

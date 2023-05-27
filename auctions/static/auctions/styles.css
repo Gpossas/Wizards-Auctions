@@ -11,13 +11,7 @@ body {
   text-decoration: none;
 }
 
-.form-wrapper {
-  width: 25%;
-  padding: 20px;
-  /* background-color: #ededed;
-  border: 1px solid #ccc; */
-  border-radius: 5px;
-}
+/* ====================== creating listing ====================== */
 
 .form-group {
   margin-bottom: 20px;
@@ -32,20 +26,17 @@ body {
 .form-control {
   width: 100%;
   padding: 5px;
-  font-size: 16px;
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
 .submit-button {
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  background-color: #4CAF50;
+  padding: 8px;
+  background-color: hsl(145, 93%, 40%);
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
 }
 
 .header h1{
@@ -91,6 +82,9 @@ body {
 }
 
 /* CATEGORIES */
+.categories-container{
+  margin-top: 48px;
+}
 .list {
   margin-bottom: 0;
   width: 15%;
@@ -124,8 +118,9 @@ h2{
   font-size: 2.5rem;
 }
 
-/* LIST GRID */
+/* ================== LIST GRID ================== */
 .listings-grid {
+  margin-top: 20px;
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -133,12 +128,13 @@ h2{
 }
 
 .listing-item {
+  overflow: hidden;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   color: #fff;
   text-align: center;
-  border-radius: 20px;
+  border-radius: 17px;
   position: relative;
 }
 
@@ -153,7 +149,7 @@ h2{
 }
 
 .listing-item::before {
-  border-radius: 20px;
+  border-radius: 17px;
   content: "";
   position: absolute;
   top: 0;
@@ -177,11 +173,11 @@ h2{
   color: white;
 }
 
-#title{
+.title{
   font-size: 2rem;
 }
 
-#price{
+.price{
   font-size: 1.5rem;
 }
 
@@ -207,22 +203,60 @@ h2{
   .listing-item-wide {
       grid-column: span 1.6 / auto;
   }
+
+  .listing-item-small {
+    grid-row: span 4 / auto;
+    grid-column: span 4 / auto;
+  }
 }
 
-/* ==================== LISTING_PAGE ==================== */
+/* ==================== LISTING PAGE ==================== */
+
+.main-info{
+  max-width: 1000px;
+  display: flex;
+  gap: 20px;
+  justify-content: left;
+}
+
+.container{
+  margin-top: 3rem;
+  display: flex;
+  justify-content: center;
+}
+
+.container-info{
+  margin: 0;
+  max-width: 400px;
+}
+
+.listing-title{
+  word-wrap: break-word;
+}
 
 .listing-page-flex{
+  width: 80vw;
   display: flex;
   gap: 30px;
   flex-direction: column;
 }
-.picture img{
+.listing-img{
   border-radius: 20px;
-  max-width: 500px;
+  min-height: 300px;
+  max-height: 650px;
+  width: 550px;
+  width: 550px;
+  object-fit: cover;
 }
-
-.bids{
-  max-width: 25vw;
+.listing-img-container{
+  position: relative;
+}
+.watchlist{
+  position: absolute;
+  font-weight: bold;
+  bottom: 5px; 
+  right: 5px;
+  border-bottom-right-radius: 20px;
 }
 
 .btn-light{
@@ -233,4 +267,20 @@ h2{
   .listing-page-flex {
     flex-direction: column;
   }
+}
+
+/* ============= watchlist ============= */
+
+.watchlist-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 200px);
+  grid-template-rows: repeat(4, 200px);
+  gap: 20px;
+}
+
+.watchlist-grid a {
+  color:#fff;
+}
+a:hover {
+  color:#d7d7d7;
 }
