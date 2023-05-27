@@ -4,9 +4,10 @@ It's a fullstack project that I took inspiration from CS50W by Harvard to learn 
 OBS: Unit tests paused by now:
   I used Test-driven development methodology, I made several tests then I decided to use Ajax later, so it break a lot of unit tests.
   May in the future I fix, but the purpose of the project is to learn and not to make a real-world website
-![image](https://github.com/Gpossas/Hogwarts-Auctions/assets/73307377/0a4f8b23-b17c-4b1e-b324-6a0284724fec)
-![wizard-auctions](https://github.com/Gpossas/Hogwarts-Auctions/assets/73307377/cc0dc3e1-538e-425d-845d-dab83912d4e0)
+  
+![wizard-auctions_1](https://github.com/Gpossas/Wizards-Auctions/assets/73307377/ac8ef46b-6833-4974-acd0-2460119f3dbe)
 
+![wizard-auctions](https://github.com/Gpossas/Wizards-Auctions/assets/73307377/d64d1f4d-d7ce-4fe0-8443-7364b2ac803e)
 
 Requeriments:
  Install django: pip install Django
