@@ -12,13 +12,13 @@ OBS: Unit tests paused by now: <br>
 Requeriments: <br>
   Create a Python virtual environment: <br>
     If you are using Linux or macOS, create an isolated environment with the following command: <br>
-        python -m venv my_env <br>
+     &emsp; python -m venv my_env <br>
     If you are using Windows, use the following command instead: <br>
-        py -m venv my_env <br>
+     &emsp; py -m venv my_env <br>
   activate the virtual environment: <br>
   If you are using Linux or macOS, run the following command to activate your virtual environment: <br>
-    source my_env/bin/activate <br>
+    &emsp; source my_env/bin/activate <br>
   If you are using Windows, use the following command instead: <br>
-    .\my_env\Scripts\activate <br>
+    &emsp; .\my_env\Scripts\activate <br>
  Install django: <br>
-    pip install Django  <br>
+    &emsp; pip install Django  <br>
